@@ -1,5 +1,3 @@
-package vegetal_processing
-
 import processing.core.PApplet._
 import processing.core._
 
