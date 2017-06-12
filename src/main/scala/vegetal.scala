@@ -56,7 +56,6 @@ class vegetal extends PApplet {
   val d = 10
   val n = 5
 
-  var motif = axiom
   val leo : Turtle = new Turtle(300,300, 3* 0.5*Pi )
  // 1 to n foreach { _ => mot = rule(mot) }
 
@@ -89,9 +88,8 @@ class vegetal extends PApplet {
     //background(0)
     println("mouse pressed")
 
-   val res = rewrite(motif)
-  motif = res
-    println("motif de longueur " + motif.length + "\nmotif" + motif)
+   val res = rewrite(axiom)
+    println("motif de longueur " + axiom.length + "\nmotif" + axiom)
     move_turtle(res , leo)
 
   }
