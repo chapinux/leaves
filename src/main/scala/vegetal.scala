@@ -35,25 +35,12 @@ class vegetal extends PApplet {
 
 
   val axiom: String = "F-F-F-F"
-  var appels = 0
   // apllication de la règle de grammaire
- def rewrite(s: String): String = s match {
-    case "F" =>
-      appels = appels + 1
-      "F-FF--F-F"
-    case "-" =>
-      appels = appels + 1
-      "-"
-    case "+" =>
-      appels = appels + 1
-      "+"
-    case "" =>
-      appels = appels + 1
-      ""
-    case _ =>
-      appels = appels + 1
-      rewrite(s.head.toString) + rewrite(s.tail)
-
+ def rewrite(s: String): String = s.flatMap{ _ match {
+   case 'F' => "F-FF--F-F"
+   case '-' => "-"
+   case '+' => "+"
+    }
   }
 
 
@@ -61,26 +48,20 @@ class vegetal extends PApplet {
 
 
 
-  def move_turtle(s: String, t: Turtle): (String, Turtle) = (s, t) match {
-
-    case ("F", t) =>
-      val previous_pos = t.position
-      t.move((d * cos(t.heading)).toInt, (d * sin(t.heading)).toInt)
-      line(previous_pos._1, previous_pos._2, t.position._1, t.position._2)
-      (s.tail, t)
-    case ("f", t) =>
-      println("j'ai un f, je bouge sans tracer")
-      t.move((d * cos(t.heading)).toInt, (d * sin(t.heading)).toInt)
-      (s.tail, t)
-    case ("+", t) =>
-      t.rotate(delta)
-      (s.tail, t)
-    case ("-", t) =>
-      t.rotate(-delta)
-      (s.tail, t)
-    case (_, t) =>
-      move_turtle(s.head.toString, t)
-      (s.tail, t)
+  def move_turtle(s: String, t: Turtle) = s.map {
+    _ match {
+      case ('F') =>
+        val previous_pos = t.position
+        t.move((d * cos(t.heading)).toInt, (d * sin(t.heading)).toInt)
+        line(previous_pos._1, previous_pos._2, t.position._1, t.position._2)
+      case ('f') =>
+        println("j'ai un f, je bouge sans tracer")
+        t.move((d * cos(t.heading)).toInt, (d * sin(t.heading)).toInt)
+      case ('+') =>
+        t.rotate(delta)
+      case ('-') =>
+        t.rotate(-delta)
+    }
   }
 
 
@@ -135,7 +116,6 @@ class vegetal extends PApplet {
 
    val res = rewrite(motif)
   motif = res
-    println("nombre d'appels" + appels)
     println("motif de longueur " + motif.length + "\nmotif" + motif)
     move_turtle(res , leo)
 
