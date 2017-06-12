@@ -1,17 +1,20 @@
-/**
-  * Created by chap on 11/04/17.
-  */
-
 import processing.core._
 import PApplet._
-
 import math.cos
 import math.sin
 import math.Pi
-import scala.annotation.tailrec
-
 
 class vegetal extends PApplet {
+
+
+  val axiom: String = "F-F-F-F"
+  def rewrite(s: String): String = s.flatMap{ _ match {
+    case 'F' => "F-FF--F-F"
+    case '-' => "-"
+    case '+' => "+"
+  }
+  }
+
 
 
   case class Turtle (val x : Double , val y : Double , val heading : Double) {
@@ -21,14 +24,6 @@ class vegetal extends PApplet {
     override def toString: String = "Turtle x:" + this.x + "y:" + y + "alpha:" + heading
  }
 
-  val axiom: String = "F-F-F-F"
-  // apllication de la règle de grammaire
- def rewrite(s: String): String = s.flatMap{ _ match {
-   case 'F' => "F-FF--F-F"
-   case '-' => "-"
-   case '+' => "+"
-    }
-  }
 
   def move_turtle(s: String, t: Turtle) = s.foldLeft(t) { case (tt, c) =>
     c match {
@@ -38,7 +33,6 @@ class vegetal extends PApplet {
         line(previous_pos._1, previous_pos._2, newt.position._1, newt.position._2)
         newt
       case ('f') =>
-        println("j'ai un f, je bouge sans tracer")
         tt.move((d * cos(tt.heading)).toInt, (d * sin(tt.heading)).toInt)
       case ('+') =>
         tt.rotate(delta)
@@ -62,13 +56,9 @@ class vegetal extends PApplet {
   val d = 10
   val n = 5
 
-  var mot = axiom
   var motif = axiom
   val leo : Turtle = new Turtle(300,300, 3* 0.5*Pi )
  // 1 to n foreach { _ => mot = rule(mot) }
-  println(mot)
-  println("============")
- // println(res)
 
 
 
