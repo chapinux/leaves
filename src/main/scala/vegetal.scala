@@ -14,25 +14,12 @@ import scala.annotation.tailrec
 class vegetal extends PApplet {
 
 
-  case class Turtle ( var x : Double , var y : Double , var heading : Double) {
-
-    def move(dx:Int,dy:Int):Unit={
-      x= x + dx
-      y = y + dy
-    }
-
+  case class Turtle (val x : Double , val y : Double , val heading : Double) {
+    def move(dx:Int,dy:Int):Turtle= Turtle(x + dx, y = y + dy,heading)
     def position : (Int,Int) = (x.toInt,y.toInt)
-
-    def rotate(angle: Double)={
-      heading = heading + angle
-    }
-
+    def rotate(angle: Double)= Turtle(x,y,(heading + angle)%(2*Pi))
     override def toString: String = "Turtle x:" + this.x + "y:" + y + "alpha:" + heading
  }
-
-
-
-
 
   val axiom: String = "F-F-F-F"
   // apllication de la règle de grammaire
@@ -43,28 +30,26 @@ class vegetal extends PApplet {
     }
   }
 
-
-
-
-
-
-  def move_turtle(s: String, t: Turtle) = s.map {
-    _ match {
+  def move_turtle(s: String, t: Turtle) = s.foldLeft(t) { case (tt, c) =>
+    c match {
       case ('F') =>
-        val previous_pos = t.position
-        t.move((d * cos(t.heading)).toInt, (d * sin(t.heading)).toInt)
-        line(previous_pos._1, previous_pos._2, t.position._1, t.position._2)
+        val previous_pos = tt.position
+        val newt = tt.move((d * cos(tt.heading)).toInt, (d * sin(tt.heading)).toInt)
+        line(previous_pos._1, previous_pos._2, newt.position._1, newt.position._2)
+        newt
       case ('f') =>
         println("j'ai un f, je bouge sans tracer")
-        t.move((d * cos(t.heading)).toInt, (d * sin(t.heading)).toInt)
+        tt.move((d * cos(tt.heading)).toInt, (d * sin(tt.heading)).toInt)
       case ('+') =>
-        t.rotate(delta)
+        tt.rotate(delta)
       case ('-') =>
-        t.rotate(-delta)
+        tt.rotate(-delta)
     }
   }
 
 
+//F-FF--F-F-F-FF--F-F-F-FF--F-F-F-FF--F-F
+//F-FF--F-F-F-FF--F-F-F-FF--F-F-F-FF--F-F
 
   // appel recursif n fois
   def apply_n(s: String, i: Int): (String, Int) = (s, i) match {
