@@ -1,70 +1,63 @@
+import Vegetal.Turtle
 import processing.core.PApplet._
 import processing.core._
 
 import scala.collection.immutable.Stack
 import scala.math.{Pi, cos, sin}
 
-class vegetal extends PApplet {
 
 
-  val axiom: String = "F"
-  def rewrite(s: String): String = s.flatMap{ _ match {
-    case 'F' => "FF-[-F+F+F]+[+F-F-F]"
-    case c => c.toString
+object vegetal_withProcessing {
+
+  val d = 20
+  val delta =math.toRadians(5.0)
+  val veg = Vegetal.generate(delta,d,25)
+  println(veg)
+  val t = new Turtle(500, 500, 3 * 0.5 * Pi)
+
+
+  def main(args:Array[String]) {
+
+    PApplet.main(Array("vegetal_withProcessing"))
   }
-  }
+}
 
 
-
-  case class Turtle (val x : Double , val y : Double , val heading : Double) {
-    def move(dx:Int,dy:Int):Turtle= Turtle(x + dx, y = y + dy,heading)
-    def position : (Int,Int) = (x.toInt,y.toInt)
-    def rotate(angle: Double)= Turtle(x,y,(heading + angle)%(2*Pi))
-    override def toString: String = "Turtle x:" + this.x + "y:" + y + "alpha:" + heading
- }
-
-
+class vegetal_withProcessing extends PApplet {
   def move_turtle(s: String, t: Turtle) = {
     val st = Stack[Turtle]()
     s.foldLeft((t,st)) { case ((head, stack), c) =>
       c match {
         case ('F') =>
           val previous_pos = head.position
-          val newt = head.move((d * cos(head.heading)).toInt, (d * sin(head.heading)).toInt)
+          val newt = head.move((vegetal_withProcessing.d * cos(head.heading)).toInt, (vegetal_withProcessing.d * sin(head.heading)).toInt)
           line(previous_pos._1, previous_pos._2, newt.position._1, newt.position._2)
           (newt,stack)
         case ('f') =>
-          (head.move((d * cos(head.heading)).toInt, (d * sin(head.heading)).toInt),stack)
+          (head.move((vegetal_withProcessing.d * cos(head.heading)).toInt, (vegetal_withProcessing.d * sin(head.heading)).toInt),stack)
         case ('+') =>
-          (head.rotate(delta),stack)
+          (head.rotate(vegetal_withProcessing.delta),stack)
         case ('-') =>
-          (head.rotate(-delta),stack)
+          (head.rotate(-vegetal_withProcessing.delta),stack)
         case ('[') =>
           (head, stack.push(head))
         case (']') =>
           stack.pop2
+        case ('{') =>
+          beginShape()
+          (head,stack)
+        case ('}') =>
+           endShape()
+          (head,stack)
+        case ('.')=>
+          vertex(head.x.toFloat,head.y.toFloat)
+          (head,stack)
+        case _ =>(head,stack)
+
+
       }
     }
   }
-
-
-//F-FF--F-F-F-FF--F-F-F-FF--F-F-F-FF--F-F
-//F-FF--F-F-F-FF--F-F-F-FF--F-F-F-FF--F-F
-
-  // appel recursif n fois
-  def apply_n(s: String, i: Int): (String, Int) = (s, i) match {
-    case (_, 0) => (s, i)
-    case (s, _) => apply_n(rewrite(s), i - 1)
-  }
-
- // lazy val res: String = apply_n(axiom, 1)._1
-  val delta = math.toRadians(11)
-  val d = 10
-  val n = 4
-
-  var motif = axiom
-  val leo : Turtle = new Turtle(500,500, 3* 0.5*Pi )
- // 1 to n foreach { _ => mot = rule(mot) }
 
 
 
@@ -76,7 +69,8 @@ class vegetal extends PApplet {
     frameRate(999)
     stroke(255)
     background(0)
-    move_turtle(axiom,leo)
+    fill(127)
+    move_turtle(vegetal_withProcessing.veg,vegetal_withProcessing.t)
 
   }
 
@@ -95,23 +89,9 @@ class vegetal extends PApplet {
     //background(0)
     println("mouse pressed")
 
-   val res = rewrite(motif)
-  motif = res
-    println("motif de longueur " + motif.length + "\nmotif" + motif)
-    move_turtle(res , leo)
+ move_turtle(vegetal_withProcessing.veg , vegetal_withProcessing.t)
 
   }
 
 }
-
 // class
-
-object vegetal {
-
-  def main(args:Array[String]) {
-
-
-    PApplet.main(Array("vegetal"))
-  }
-
-}

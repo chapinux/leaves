@@ -12,13 +12,13 @@ object Vegetal {
 
   def generate(angle: Double, longueur: Int, nombre: Int): String = {
     val v = new Vegetal(angle, longueur, nombre)
-    v.apply_n("F", nombre)._1
+    v.apply_n("[A][B]", nombre)._1
   }
 
   case class Turtle(val x: Double, val y: Double, val heading: Double) {
     def move(dx: Int, dy: Int): Turtle = Turtle(x + dx, y = y + dy, heading)
     def position: (Int, Int) = (x.toInt, y.toInt)
-    def rotate(angle: Double) = Turtle(x, y, (heading + angle) % (2 * Pi)
+    def rotate(angle: Double) = Turtle(x, y, (heading + angle) % (2 * Pi))
     override def toString: String = "Turtle x:" + this.x + "y:" + y + "alpha:" + heading
   }
 
@@ -27,11 +27,13 @@ object Vegetal {
 
 class Vegetal(delta: Double, d: Int, n: Int) {
 
-  val axiom: String = "F"
+  val axiom: String = "[A][B]"
 
   def rewrite(s: String): String = s.flatMap {
     _ match {
-      case 'F' => "FF-[-F+F+F]+[+F-F-F]"
+      case 'A' => "[+A{.].C.}"
+      case 'B' => "[-B{.].C.}"
+      case 'C' => "FC"
       case c => c.toString
     }
   }
