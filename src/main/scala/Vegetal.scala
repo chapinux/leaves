@@ -1,5 +1,5 @@
-import processing.core._
-import PApplet._
+package leaves
+
 import math.cos
 import math.sin
 import math.Pi
@@ -18,7 +18,7 @@ object Vegetal {
   case class Turtle(val x: Double, val y: Double, val heading: Double) {
     def move(dx: Int, dy: Int): Turtle = Turtle(x + dx, y = y + dy, heading)
     def position: (Int, Int) = (x.toInt, y.toInt)
-    def rotate(angle: Double) = Turtle(x, y, (heading + angle) % (2 * Pi)
+    def rotate(angle: Double) = Turtle(x, y, (heading + angle) % (2 * Pi))
     override def toString: String = "Turtle x:" + this.x + "y:" + y + "alpha:" + heading
   }
 
@@ -37,9 +37,12 @@ class Vegetal(delta: Double, d: Int, n: Int) {
   }
 
   // appel recursif n fois
-  def apply_n(s: String, i: Int): (String, Int) = (s, i) match {
-    case (_, 0) => (s, i)
-    case (s, _) => apply_n(rewrite(s), i - 1)
+  def apply_n(s: String, i: Int): (String, Int) = {
+    println("apply")
+    (s, i) match {
+      case (_, 0) => (s, i)
+      case (s, _) => apply_n(rewrite(s), i - 1)
+    }
   }
 }
 
