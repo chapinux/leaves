@@ -1,7 +1,6 @@
 package leaves
 
-import java.awt.Point
-
+import better.files._
 import Vegetal.Turtle
 
 import scala.collection.immutable.Stack
@@ -103,6 +102,7 @@ object SVG extends App {
       }
     )
 
-    println(svgTag.render)
+    val file = "/tmp"/ "out.svg"
+    file.overwrite(svgTag.render)
   }
 }

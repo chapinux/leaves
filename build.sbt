@@ -11,6 +11,7 @@ scalaVersion in ThisBuild := "2.12.1"
 
 val jtsVersion = "1.13"
 val scalatagsVersion = "0.6.5"
+val betterFileVersion = "2.15.0"
 
 resolvers ++= Seq(
   "osgeo" at "http://download.osgeo.org/webdav/geotools/",
@@ -20,5 +21,6 @@ resolvers ++= Seq(
 
 libraryDependencies ++= Seq (
   "com.vividsolutions" % "jts" % jtsVersion,
-  "com.lihaoyi" %% "scalatags" % scalatagsVersion
+  "com.lihaoyi" %% "scalatags" % scalatagsVersion,
+  "com.github.pathikrit" % "better-files_2.11" % betterFileVersion
 )
