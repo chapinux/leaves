@@ -1,5 +1,7 @@
 package leaves
 
+import java.awt.Point
+
 import Vegetal.Turtle
 
 import scala.collection.immutable.Stack
@@ -34,14 +36,20 @@ object SVG extends App {
 
     val delta = math.toRadians(20)
     val length = 10
-    val nbIterations = 3
+    val nbIterations = 20
 
 
     case class MoveAndTrace(moveX: Double, moveY: Double, traceToX: Double, traceToY: Double)
+    case class Vertex(vx: Double, vy: Double)
     var moveAndTraces: Seq[MoveAndTrace] = Seq()
+    var vertices: Seq[Vertex] = Seq()
+    var polygons: Seq[Seq[Vertex]] = Seq()
 
     def move_turtle(s: String, t: Turtle) = {
       val st = Stack[Turtle]()
+
+
+
       s.foldLeft((t, st)) { case ((head, stack), c) =>
         c match {
           case ('F') =>
@@ -55,6 +63,15 @@ object SVG extends App {
           case ('-') => (head.rotate(-delta), stack)
           case ('[') => (head, stack.push(head))
           case (']') => stack.pop2
+          case ('{') =>
+            vertices = Seq()
+            (head, stack)
+          case ('}') =>
+            polygons = polygons :+ vertices
+            (head, stack)
+          case ('.') =>
+            vertices = vertices :+ new Vertex(head.position._1, head.position._2)
+            (head, stack)
           case _ => (head, stack)
         }
       }
@@ -74,7 +91,16 @@ object SVG extends App {
       svgTags.path(
         svgAttrs.stroke := "black",
         svgAttrs.d := painterPath.svgString
-      )
+      ),
+      for {
+        p <- polygons
+      } yield {
+        svgTags.polygon(
+          svgAttrs.stroke := "black",
+          svgAttrs.fill := "yellow",
+          svgAttrs.points := p.seq.foldLeft(""){(acc, v)=> acc ++ s"${v.vx},${v.vy} "}
+        )
+      }
     )
 
     println(svgTag.render)
