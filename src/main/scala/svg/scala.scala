@@ -1,4 +1,4 @@
-
+package leaves
 /*
  * Copyright (C) 13/06/17 // mathieu.leclaire@openmole.org
  *
@@ -16,13 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package object svg {
+object svg {
 
-  object path {
+    def startPath(x: Int, y: Int): Path = path("").m(x, y)
 
-    def start(x: Int, y: Int): Path = apply("<svg width=\"800\" height=\"800\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"").m(x, y)
-
-    def apply(st: String = "") = new Path {
+    def path(st: String = "") = new Path {
       def svgString = st
     }
 
@@ -42,8 +40,6 @@ package object svg {
       def svgString: String
 
       private def append(s: String): Path = path(svgString + s" $s")
-
-      def end: Path = path(svgString + "\" stroke=\"black\"/>\n</svg>")
 
       def m(x: Double, y: Double): Path = append(s"$M $x $y")
 
@@ -67,7 +63,5 @@ package object svg {
 
       def z = append("Z")
     }
-
-  }
 
 }

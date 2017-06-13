@@ -5,7 +5,9 @@ import Vegetal.Turtle
 import scala.collection.immutable.Stack
 import scala.math.{cos, sin}
 import math.Pi
-import scala.collection.mutable
+import scalatags.Text.all._
+import scalatags.Text.svgAttrs
+import scalatags.Text.svgTags
 
 /*
  * Copyright (C) 12/06/17 // mathieu.leclaire@openmole.org
@@ -45,19 +47,15 @@ object SVG extends App {
           case ('F') =>
             val previous_pos = head.position
             val newt = head.move((length * cos(head.heading)).toInt, (length * sin(head.heading)).toInt)
-          //  println(s"FFF $previous_pos to ${newt.position}")
+            //  println(s"FFF $previous_pos to ${newt.position}")
             moveAndTraces = moveAndTraces :+ MoveAndTrace(previous_pos._1, previous_pos._2, newt.position._1, newt.position._2)
             (newt, stack)
-          case ('f') =>
-            (head.move((length * cos(head.heading)).toInt, (length * sin(head.heading)).toInt), stack)
-          case ('+') =>
-            (head.rotate(delta), stack)
-          case ('-') =>
-            (head.rotate(-delta), stack)
-          case ('[') =>
-            (head, stack.push(head))
-          case (']') =>
-            stack.pop2
+          case ('f') => (head.move((length * cos(head.heading)).toInt, (length * sin(head.heading)).toInt), stack)
+          case ('+') => (head.rotate(delta), stack)
+          case ('-') => (head.rotate(-delta), stack)
+          case ('[') => (head, stack.push(head))
+          case (']') => stack.pop2
+          case _ => (head, stack)
         }
       }
     }
@@ -66,8 +64,19 @@ object SVG extends App {
     val ss = Vegetal.generate(delta, length, nbIterations)
     move_turtle(ss, leo)
 
-    val painter = svg.path.start(0, 0)
-    val path = moveAndTraces.foldLeft(painter)((painter, mAt)=> painter.m(mAt.moveX, mAt.moveY).l(mAt.traceToX, mAt.traceToY))
-    println(path.end.svgString)
+    val painter = leaves.svg.startPath(0, 0)
+    val painterPath = moveAndTraces.foldLeft(painter)((painter, mAt) => painter.m(mAt.moveX, mAt.moveY).l(mAt.traceToX, mAt.traceToY))
+
+    val svgTag = svgTags.svg(
+      svgAttrs.width := 800,
+      svgAttrs.height := 800,
+      svgAttrs.xmlns := "http://www.w3.org/2000/svg",
+      svgTags.path(
+        svgAttrs.stroke := "black",
+        svgAttrs.d := painterPath.svgString
+      )
+    )
+
+    println(svgTag.render)
   }
 }
