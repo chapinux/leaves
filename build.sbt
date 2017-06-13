@@ -9,7 +9,18 @@ version := "1.0"
 
 scalaVersion in ThisBuild := "2.12.1"
 
+val jtsVersion = "1.13"
+
+resolvers ++= Seq(
+  "osgeo" at "http://download.osgeo.org/webdav/geotools/",
+  "geosolutions" at "http://maven.geo-solutions.it/",
+  "geotoolkit" at "http://maven.geotoolkit.org/"
+)
+
 //lazy val buildLeaves = taskKey[Unit]("buildLeaves")
+libraryDependencies ++= Seq (
+  "com.vividsolutions" % "jts" % jtsVersion
+)
 
 lazy val leaves = project.in(file(".")) /*enablePlugins (ScalaJSPlugin)*/ settings(
   //libraryDependencies += "com.lihaoyi" %% "scalatags" % "0.6.5"
