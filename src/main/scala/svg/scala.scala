@@ -45,25 +45,25 @@ package object svg {
 
       def end: Path = path(svgString + "\" stroke=\"black\"/>\n</svg>")
 
-      def m(x: Int, y: Int): Path = append(s"$M $x $y")
+      def m(x: Double, y: Double): Path = append(s"$M $x $y")
 
-      def l(x: Int, y: Int): Path = append(s"$L $x $y")
+      def l(x: Double, y: Double): Path = append(s"$L $x $y")
 
-      def ml(mx: Int, my: Int, lx: Int, ly: Int) = m(mx,my).l(lx,ly)
+      def ml(mx: Double, my: Double, lx: Double, ly: Double) = m(mx,my).l(lx,ly)
 
-      def h(y: Int): Path = append(s"$H $y")
+      def h(y: Double): Path = append(s"$H $y")
 
-      def v(x: Int): Path = append(s"$V $x")
+      def v(x: Double): Path = append(s"$V $x")
 
-      def c(x1: Int, y1: Int, x2: Int, y2: Int, x: Int, y: Int): Path = append(s"$C $x1 $y1 $x2 $y2 $x $y")
+      def c(x1: Double, y1: Double, x2: Double, y2: Double, x: Double, y: Double): Path = append(s"$C $x1 $y1 $x2 $y2 $x $y")
 
-      def q(x1: Int, y1: Int, x: Int, y: Int): Path = append(s"$Q $x1 $y1 $x $y")
+      def q(x1: Double, y1: Double, x: Double, y: Double): Path = append(s"$Q $x1 $y1 $x $y")
 
-      def s(x2: Int, y2: Int, x: Int, y: Int): Path = append(s"$S $x2 $y2 $x $y")
+      def s(x2: Double, y2: Double, x: Double, y: Double): Path = append(s"$S $x2 $y2 $x $y")
 
-      def t(x: Int, y: Int): Path = append(s"$T $x $y")
+      def t(x: Double, y: Double): Path = append(s"$T $x $y")
 
-      def a(rx: Int, ry: Int, xAxisRotation: Int, largeArcFlag: Int, sweepFlag: Int, x: Double, y: Double) = append(s"$A $rx $ry $xAxisRotation $largeArcFlag $sweepFlag $x $y")
+      def a(rx: Double, ry: Double, xAxisRotation: Double, largeArcFlag: Double, sweepFlag: Double, x: Double, y: Double) = append(s"$A $rx $ry $xAxisRotation $largeArcFlag $sweepFlag $x $y")
 
       def z = append("Z")
     }

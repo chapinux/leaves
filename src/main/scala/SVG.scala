@@ -35,7 +35,7 @@ object SVG extends App {
     val nbIterations = 3
 
 
-    case class MoveAndTrace(moveX: Int, moveY: Int, traceToX: Int, traceToY: Int)
+    case class MoveAndTrace(moveX: Double, moveY: Double, traceToX: Double, traceToY: Double)
     var moveAndTraces: Seq[MoveAndTrace] = Seq()
 
     def move_turtle(s: String, t: Turtle) = {
