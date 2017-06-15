@@ -24,13 +24,13 @@ import better.files._
 object Model extends App {
 
   override def main(args: Array[String]) = apply(
-    70.0,
-    100.0,
-    15.0, 0.75, math.toRadians(0), 1, 0.00,
-    15.0, 2.75, math.toRadians(45), 3, 0.66,
-    15.0, 2.75, math.toRadians(45), 3, 0.66,
-    15.0, 2.45, math.toRadians(45), 3, 0.66,
-    15.0, 0.15, math.toRadians(45), 3, 0.66
+    args(0).toDouble,
+    args(1).toDouble,
+    args(2).toDouble, args(3).toDouble, math.toRadians(args(4).toDouble), args(5).toInt, args(6).toDouble,
+    args(7).toDouble, args(8).toDouble, math.toRadians(args(9).toDouble), args(10).toInt, args(11).toDouble,
+    args(12).toDouble, args(13).toDouble, math.toRadians(args(14).toDouble), args(15).toInt, args(16).toDouble,
+    args(17).toDouble, args(18).toDouble, math.toRadians(args(19).toDouble), args(20).toInt, args(21).toDouble,
+    args(22).toDouble, args(23).toDouble, math.toRadians(args(24).toDouble), args(25).toInt, args(26).toDouble
   )
 
   case class Level(
@@ -134,7 +134,8 @@ object Model extends App {
 
     iter(0, 1, turtle0)
     val shape = CharacteristicShape.fromLines(lines, 1000.0)
-    println(shape)
-    Rendering(lines, Seq(shape.getExteriorRing.getCoordinates.map{c=> Vertex(c.x, c.y)}), "/tmp" / "model.svg")
+    //println(shape)
+    Rendering(lines, Seq(shape.getExteriorRing.getCoordinates.map{c=> Vertex(c.x, c.y)}), "model.svg")
+    (shape.getArea, shape.getLength)
   }
 }
