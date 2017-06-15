@@ -3,10 +3,9 @@ package leaves
 import com.vividsolutions.jts.geom._
 import com.vividsolutions.jts.geom.{Coordinate, Geometry, GeometryFactory}
 import better.files._
+
 import scalatags.Text.{svgAttrs, svgTags}
 import scalatags.Text.all._
-import scalatags.Text.svgAttrs
-import scalatags.Text.svgTags
 
 /*
  * Copyright (C) 14/06/17 // mathieu.leclaire@openmole.org
@@ -28,7 +27,7 @@ import scalatags.Text.svgTags
 object Rendering {
   val fact = new GeometryFactory
 
-  def variableWidthBuffer(p0: Coordinate, p1: Coordinate, width0: Double, width1: Double):Geometry = {
+  def variableWidthBuffer(p0: Coordinate, p1: Coordinate, width0: Double, width1: Double): Geometry = {
     val seg = new LineSegment(p0, p1)
     val dist0 = width0 / 2
     val dist1 = width1 / 2
@@ -36,10 +35,11 @@ object Rendering {
     val s1 = seg.pointAlongOffset(1, dist1)
     val s2 = seg.pointAlongOffset(1, -dist1)
     val s3 = seg.pointAlongOffset(0, -dist0)
-    fact.createGeometryCollection(Array(fact.createPoint(p0).buffer(width0/2.0),fact.createPoint(p1).buffer(width1/2.0),fact.createPolygon(Array(s0, s1, s2, s3, s0)))).union()
+    fact.createGeometryCollection(Array(fact.createPoint(p0).buffer(width0 / 2.0), fact.createPoint(p1).buffer(width1 / 2.0), fact.createPolygon(Array(s0, s1, s2, s3, s0)))).union()
   }
 
-  case class Vertex(vx: Double, vy: Double, thickness: Double)
+  case class Vertex(vx: Double, vy: Double, thickness: Double = 1.0)
+
   case class Line(fromVertex: Vertex, toVertex: Vertex)
 
   def apply(lines: Seq[Line],
@@ -48,6 +48,7 @@ object Rendering {
 
     //JTS
     implicit def vertexToCoordinate(v: Vertex): Coordinate = new Coordinate(v.vx, v.vy)
+
     implicit def arrayVertexToArrayCoordinate(a: Array[Vertex]): Array[Coordinate] = a.map {
       vertexToCoordinate
     }
@@ -59,11 +60,10 @@ object Rendering {
       //fact.createLineString(Array(l.fromVertex, l.toVertex))
     }
 
-//    jtsGemoteries.foreach {
-//      println
-//    }
+    //    jtsGemoteries.foreach {
+    //      println
+    //    }
     val collection = fact.createGeometryCollection(jtsGemoteries.toArray).union
-    println(collection)
     println(collection.getArea)
     println(collection.getLength)
 
@@ -76,10 +76,6 @@ object Rendering {
       svgAttrs.width := 800,
       svgAttrs.height := 800,
       svgAttrs.xmlns := "http://www.w3.org/2000/svg",
-      svgTags.path(
-        svgAttrs.stroke := "black",
-        svgAttrs.d := painterPath.svgString
-      ),
       for {
         p <- polygons
       } yield {
@@ -88,7 +84,11 @@ object Rendering {
           svgAttrs.fill := "yellow",
           svgAttrs.points := p.seq.foldLeft("") { (acc, v) => acc ++ s"${v.vx},${v.vy} " }
         )
-      }
+      },
+      svgTags.path(
+        svgAttrs.stroke := "black",
+        svgAttrs.d := painterPath.svgString
+      )
     )
 
     outSVG.overwrite(svgTag.render)

@@ -1,5 +1,6 @@
 import leaves.Rendering
 import leaves.Rendering.{Line, Vertex}
+import leaves.Rendering._
 import leaves.Vegetal.Turtle
 import better.files._
 
@@ -94,7 +95,6 @@ object Model extends App {
 
     def iter(curDepth: Int, currentDecrease: Double, curTurtle: Turtle): Unit = {
       if (curDepth < 5) {
-        println("Depth " + curDepth)
         val curLevel = levels(curDepth)
         val currentRatio = curLevel.decreaseRate * currentDecrease
         val currentLength = length * currentRatio
@@ -114,9 +114,8 @@ object Model extends App {
     }
 
     iter(0, 1, turtle0)
-    println(lines.size)
-    Rendering(lines, Seq(), "/tmp" / "model.svg")
-    println(CharacteristicShape(vertices, 100.0))
+    val shape = CharacteristicShape(vertices, 100.0)
+    Rendering(lines, Seq(shape.getExteriorRing.getCoordinates.map{c=> Vertex(c.x, c.y)}), "/tmp" / "model.svg")
   }
 
 }
