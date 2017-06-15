@@ -27,7 +27,7 @@ import scalatags.Text.all._
 object Rendering {
   val fact = new GeometryFactory
 
-  def variableWidthBuffer(p0: Coordinate, p1: Coordinate, width0: Double, width1: Double): Geometry = {
+  def variableWidthBuffer(p0: Coordinate, p1: Coordinate, width0: Double, width1: Double, length:Option[Double] = None): Geometry = {
     val seg = new LineSegment(p0, p1)
     val dist0 = width0 / 2
     val dist1 = width1 / 2
@@ -35,7 +35,18 @@ object Rendering {
     val s1 = seg.pointAlongOffset(1, dist1)
     val s2 = seg.pointAlongOffset(1, -dist1)
     val s3 = seg.pointAlongOffset(0, -dist0)
-    fact.createGeometryCollection(Array(fact.createPoint(p0).buffer(width0 / 2.0), fact.createPoint(p1).buffer(width1 / 2.0), fact.createPolygon(Array(s0, s1, s2, s3, s0)))).union()
+    val segLength = s0.distance(s1)
+    val nbSegments = (segLength / length.getOrElse(segLength)).toInt
+    val ss0x = (s1.x - s0.x) / nbSegments
+    val ss0y = (s1.y - s0.y) / nbSegments
+    val ss0 = (1 until nbSegments).map(i=>new Coordinate(s0.x + i * ss0x, s0.y + i * ss0y))
+    val ss1x = (s3.x - s2.x) / nbSegments
+    val ss1y = (s3.y - s2.y) / nbSegments
+    val ss1 = (1 until nbSegments).map(i=>new Coordinate(s2.x + i * ss1x, s2.y + i * ss1y))
+    fact.createGeometryCollection(Array(
+      fact.createPoint(p0).buffer(width0 / 2.0),
+      fact.createPoint(p1).buffer(width1 / 2.0),
+      fact.createPolygon(Array(s0) ++ ss0 ++ Array (s1, s2) ++ ss1 ++ Array(s3, s0)))).union()
   }
 
   case class Vertex(vx: Double, vy: Double, thickness: Double = 1.0)
@@ -93,5 +104,9 @@ object Rendering {
 
     outSVG.overwrite(svgTag.render)
 
+  }
+
+  def main(args: Array[String]): Unit = {
+    println(variableWidthBuffer(new Coordinate(0.0,0.0), new Coordinate(10.0,0.0), 0.1, 0.5))
   }
 }

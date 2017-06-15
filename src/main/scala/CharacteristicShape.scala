@@ -2,7 +2,8 @@ import com.vividsolutions.jts.geom._
 import com.vividsolutions.jts.operation.linemerge.LineMerger
 import com.vividsolutions.jts.triangulate.DelaunayTriangulationBuilder
 import com.vividsolutions.jts.triangulate.quadedge.{QuadEdge, QuadEdgeTriangle, Vertex => QuadVertex}
-import leaves.Rendering.{Vertex => LeavesVertex}
+import leaves.Rendering
+import leaves.Rendering.{Line => LeavesLine, Vertex => LeavesVertex}
 
 import collection.JavaConverters._
 import scala.collection.mutable
@@ -10,18 +11,18 @@ import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 
 object CharacteristicShape {
+  val factory = new GeometryFactory
   class Border (var border:Boolean = false)
   class Vertex (val id:Int, val coordinate:Coordinate, border:Boolean = false) extends Border(border)
   class Edge (val id:Int, val geometry:LineSegment, border:Boolean, val oV:Vertex, val eV:Vertex, var triangles:ArrayBuffer[Triangle] = ArrayBuffer(), var incidentEdges:ArrayBuffer[Edge] = ArrayBuffer()) extends Border(border)
   class Triangle (val id:Int, var border:Boolean, var edges:ArrayBuffer[Edge] = ArrayBuffer(), var neighbours:ArrayBuffer[Triangle] = ArrayBuffer())
   //Characteristic shape algorithm
-  def apply(inputVertices: Seq[LeavesVertex], threshold: Double, tolerance: Option[Double] = None):Polygon = {
-    val factory = new GeometryFactory
+  def apply(inputVertices: Seq[(Double,Double)], threshold: Double, tolerance: Option[Double] = None):Polygon = {
     if (inputVertices.size < 3) factory.createPolygon(Array[Coordinate]())
     else {
       //Construct the Delaunay triangulation ∆ of P
       val triangulationBuilder = new DelaunayTriangulationBuilder
-      triangulationBuilder.setSites(factory.createMultiPoint(inputVertices.map { v => new Coordinate(v.vx, v.vy) }.toArray))
+      triangulationBuilder.setSites(factory.createMultiPoint(inputVertices.map (v => new Coordinate(v._1, v._2)).toArray))
       tolerance.foreach(triangulationBuilder.setTolerance)
       val subdivision = triangulationBuilder.getSubdivision
       //Construct the list B of boundary edges, containing the set { e ∈ E(∆) | e-∂(e) = true}
@@ -133,13 +134,25 @@ object CharacteristicShape {
       new Polygon(lr, null, factory)
     }
   }
+  def fromVertices(inputVertices: Seq[LeavesVertex], threshold: Double, tolerance: Option[Double] = None):Polygon = {
+    val nbPoints = 20
+    val angle = math.Pi * 2.0 / nbPoints
+    apply(inputVertices.flatMap { v => { (0 until nbPoints).map(i=>(v.vx + v.thickness * math.cos(angle * i), v.vy + v.thickness * math.sin(angle * i)))}},threshold, tolerance)
+  }
+  def fromLines(inputLines: Seq[LeavesLine], threshold: Double, tolerance: Option[Double] = None):Polygon = {
+    apply(factory.createGeometryCollection(inputLines.map(l=>Rendering.variableWidthBuffer(
+      new Coordinate(l.fromVertex.vx,l.fromVertex.vy),
+      new Coordinate(l.toVertex.vx,l.toVertex.vy),
+      l.fromVertex.thickness, l.toVertex.thickness, Option(threshold/2)
+    )).toArray).union.getCoordinates.map(c=>(c.x,c.y)), threshold, tolerance)
+  }
   def main(args: Array[String]): Unit = {
     val threshold = args(0).toDouble
     val r = new Random(42)
     val vertices = (0 until 100).toArray.map{_=>LeavesVertex(r.nextDouble*100, r.nextDouble*100, 0.0)}
     val factory = new GeometryFactory
     vertices.foreach(v=>println(factory.createPoint(new Coordinate(v.vx,v.vy))))
-    println(CharacteristicShape(vertices,threshold))
-    println(CharacteristicShape(Seq(),threshold))
+    println(fromVertices(vertices,threshold))
+    println(fromVertices(Seq[LeavesVertex](),threshold))
   }
 }

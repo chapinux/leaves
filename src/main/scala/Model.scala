@@ -27,10 +27,10 @@ object Model extends App {
     20.0,
     100.0,
     15.0, 0.95, math.toRadians(45), 1,
-    12.0, 0.85, math.toRadians(45), 3,
-    1.0, 0.75, math.toRadians(25), 2,
-    12.0, 0.5, math.toRadians(1), 1,
-    12.0, 0.19, math.toRadians(31), 5
+    15.0, 0.85, math.toRadians(45), 3,
+    15.0, 0.75, math.toRadians(25), 2,
+    5.0, 0.5, math.toRadians(1), 1,
+    5.0, 0.19, math.toRadians(31), 5
   )
 
   case class Level(
@@ -107,6 +107,10 @@ object Model extends App {
           val oldVertex = Vertex(curTurtle.position._1, curTurtle.position._2, curLevel.thickness)
           val newVertex = Vertex(newT.position._1, newT.position._2, nextThickness(curDepth))
           lines = lines :+ Line(oldVertex, newVertex)
+//          val nbSegments = (currentLength / curLevel.thickness).toInt
+//          val x = (newT.x - curTurtle.x) / nbSegments
+//          val y = (newT.y - curTurtle.y) / nbSegments
+//          for (i <- 1 to nbSegments) vertices = vertices :+ Vertex(curTurtle.position._1 + i * x, curTurtle.position._2 + i * y, curLevel.thickness)
           vertices = vertices :+ newVertex
           iter(curDepth + 1, currentRatio, newT)
         }
@@ -114,7 +118,7 @@ object Model extends App {
     }
 
     iter(0, 1, turtle0)
-    val shape = CharacteristicShape(vertices, 100.0)
+    val shape = CharacteristicShape.fromLines(lines, 1.0)
     Rendering(lines, Seq(shape.getExteriorRing.getCoordinates.map{c=> Vertex(c.x, c.y)}), "/tmp" / "model.svg")
   }
 
