@@ -3,10 +3,6 @@ import leaves.Rendering.{Line, Vertex}
 import leaves.Vegetal.Turtle
 import better.files._
 
-import scala.annotation.tailrec
-import scala.collection.immutable.Stack
-import scala.math.{cos, sin}
-
 /*
  * Copyright (C) 14/06/17 // mathieu.leclaire@openmole.org
  *
@@ -91,6 +87,10 @@ object Model extends App {
       else -0.5
     }
 
+    def nextThickness(d: Int) = {
+      if (d == 4) levels(4)
+      else levels(d + 1)
+    }.thickness
 
     def iter(curDepth: Int, currentDecrease: Double, curTurtle: Turtle): Unit = {
       if (curDepth < 5) {
@@ -98,13 +98,15 @@ object Model extends App {
         val curLevel = levels(curDepth)
         val currentRatio = curLevel.decreaseRate * currentDecrease
         val currentLength = length * currentRatio
+
         for (
           curBif <- 1 to curLevel.nbBifurcation
         ) yield {
           val angle = (curBif - ((curLevel.nbBifurcation) / 2) + shift(curLevel.nbBifurcation)) * curLevel.angle
           val newT = curTurtle.rotate(angle).move(currentLength, currentLength )
-          val newVertex = Vertex(newT.position._1, newT.position._2)
-          lines = lines :+ Line(Vertex(curTurtle.position._1, curTurtle.position._2), newVertex)
+          val oldVertex = Vertex(curTurtle.position._1, curTurtle.position._2, curLevel.thickness)
+          val newVertex = Vertex(newT.position._1, newT.position._2, nextThickness(curDepth))
+          lines = lines :+ Line(oldVertex, newVertex)
           vertices = vertices :+ newVertex
           iter(curDepth + 1, currentRatio, newT)
         }
@@ -114,6 +116,7 @@ object Model extends App {
     iter(0, 1, turtle0)
     println(lines.size)
     Rendering(lines, Seq(), "/tmp" / "model.svg")
+    println(CharacteristicShape(vertices, 100.0))
   }
 
 }
