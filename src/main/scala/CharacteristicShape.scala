@@ -43,7 +43,7 @@ object CharacteristicShape {
     val segments = new mutable.HashMap[LineSegment, Int]
     val edges = new mutable.HashMap[Int, Edge]
     val triangles = new mutable.HashMap[Int, Triangle]
-    sortedQuadEdge.zipWithIndex.foreach { case (qe, i) =>
+    sortedQuadEdge.zipWithIndex.foreach{ case (qe, i) =>
       val s = qe.toLineSegment
       s.normalize()
       val (idS, idD) = (coordinateIndex(s.p0), coordinateIndex(s.p1))
