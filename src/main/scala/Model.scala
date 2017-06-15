@@ -3,8 +3,6 @@ import leaves.Rendering.{Line, Vertex}
 import leaves.Vegetal.Turtle
 import better.files._
 
-import scala.annotation.tailrec
-import scala.collection.immutable.Stack
 import scala.math.{cos, sin}
 
 /*
@@ -47,7 +45,6 @@ object Model extends App {
       if ((n % 2) == 1) -1.0
       else -0.5
     }
-
 
     def iter(curDepth: Int, curTurtle: Turtle): Unit = {
       val currentRatio = math.pow(decreaseRate, curDepth)

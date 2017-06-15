@@ -9,12 +9,11 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 
-class Border (var border:Boolean = false)
-class Vertex (val id:Int, val coordinate:Coordinate, border:Boolean = false) extends Border(border)
-class Edge (val id:Int, val geometry:LineSegment, border:Boolean, val oV:Vertex, val eV:Vertex, var triangles:ArrayBuffer[Triangle] = ArrayBuffer(), var incidentEdges:ArrayBuffer[Edge] = ArrayBuffer()) extends Border(border)
-class Triangle (val id:Int, var border:Boolean, var edges:ArrayBuffer[Edge] = ArrayBuffer(), var neighbours:ArrayBuffer[Triangle] = ArrayBuffer())
-
 object CharacteristicShape {
+  class Border (var border:Boolean = false)
+  class Vertex (val id:Int, val coordinate:Coordinate, border:Boolean = false) extends Border(border)
+  class Edge (val id:Int, val geometry:LineSegment, border:Boolean, val oV:Vertex, val eV:Vertex, var triangles:ArrayBuffer[Triangle] = ArrayBuffer(), var incidentEdges:ArrayBuffer[Edge] = ArrayBuffer()) extends Border(border)
+  class Triangle (val id:Int, var border:Boolean, var edges:ArrayBuffer[Edge] = ArrayBuffer(), var neighbours:ArrayBuffer[Triangle] = ArrayBuffer())
   //Characteristic shape algorithm
   def apply(inputVertices: Seq[LeavesVertex], threshold: Double, tolerance: Option[Double] = None):Polygon = {
     //Construct the Delaunay triangulation ∆ of P
