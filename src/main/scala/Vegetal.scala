@@ -1,12 +1,12 @@
 package leaves
 
-import math.Pi
+import math.{Pi, cos, sin}
 
 object Vegetal {
   def generate(angle: Double, longueur: Double, nombre: Int) =
     new Vegetal(angle, longueur, nombre).apply_n("[A][B]", nombre)._1
   case class Turtle(val x: Double, val y: Double, val heading: Double, thickness: Double = 1.0) {
-    def move(dx: Double, dy: Double): Turtle = Turtle(x + dx, y + dy, heading)
+    def move(dx: Double, dy: Double): Turtle = Turtle(x + dx * cos(heading), y + dy * sin(heading), heading, thickness)
     def position: (Double, Double) = (x, y)
     def rotate(angle: Double) = Turtle(x, y, (heading + angle) % (2 * Pi))
     override def toString: String = s"Turtle x:$x y:$y  alpha:$heading"
