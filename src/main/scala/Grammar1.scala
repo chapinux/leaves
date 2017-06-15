@@ -24,10 +24,8 @@ import math.Pi
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//@JSExport("leaves.SVG")
 object Grammar1 extends App {
 
-  //@JSExport()
   override def main(args: Array[String]): Unit = {
 
     val delta = math.toRadians(18)

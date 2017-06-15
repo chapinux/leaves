@@ -5,11 +5,11 @@ import math.Pi
 object Vegetal {
   def generate(angle: Double, longueur: Double, nombre: Int) =
     new Vegetal(angle, longueur, nombre).apply_n("[A][B]", nombre)._1
-  case class Turtle(val x: Double, val y: Double, val heading: Double) {
+  case class Turtle(val x: Double, val y: Double, val heading: Double, thickness: Double = 1.0) {
     def move(dx: Double, dy: Double): Turtle = Turtle(x + dx, y + dy, heading)
     def position: (Double, Double) = (x, y)
     def rotate(angle: Double) = Turtle(x, y, (heading + angle) % (2 * Pi))
-    override def toString: String = "Turtle x:" + x + "y:" + y + "alpha:" + heading
+    override def toString: String = s"Turtle x:$x y:$y  alpha:$heading"
   }
 }
 
