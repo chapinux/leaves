@@ -24,7 +24,7 @@ import scala.math.{cos, sin}
 
 object Model extends App {
 
-  override def main(args: Array[String]) = apply(100.0, 1.0, 0.7, math.toRadians(15), 12.0, 5, 5)
+  override def main(args: Array[String]) = apply(100.0, 2.0, 0.5, math.toRadians(15), 12.0, 5, 5)
 
   def apply(
              length0: Double,
@@ -49,14 +49,16 @@ object Model extends App {
     def iter(curDepth: Int, curTurtle: Turtle): Unit = {
       val currentRatio = math.pow(decreaseRate, curDepth)
       val currentLength = length0 * currentRatio
+      val currentThickness = thickness0 * currentRatio
+      val previousThickness = thickness0 * math.pow(decreaseRate, curDepth - 1)
       if (curDepth < depth) {
         for (
           curBif <- 1 to nbBifurcation
         ) yield {
           val nA = (curBif  - ((nbBifurcation) / 2) + shift(nbBifurcation))
           val newT = curTurtle.rotate(angle * nA).move(currentLength * cos(curTurtle.heading), currentLength * sin(curTurtle.heading))
-          val newVertex = Vertex(newT.position._1, newT.position._2)
-          lines = lines :+ Line(Vertex(curTurtle.position._1, curTurtle.position._2), newVertex)
+          val newVertex = Vertex(newT.position._1, newT.position._2, currentThickness)
+          lines = lines :+ Line(Vertex(curTurtle.position._1, curTurtle.position._2, previousThickness), newVertex)
           vertices = vertices :+ newVertex
           iter(curDepth + 1, newT)
         }
@@ -65,6 +67,7 @@ object Model extends App {
 
     iter(1, turtle0)
     Rendering(lines, Seq(), "/tmp" / "model.svg")
+    println(CharacteristicShape(vertices, 100.0))
   }
 
 }

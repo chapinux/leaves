@@ -133,7 +133,7 @@ object CharacteristicShape {
   def main(args: Array[String]): Unit = {
     val threshold = args(0).toDouble
     val r = new Random(42)
-    val vertices = (0 until 100).toArray.map{_=>LeavesVertex(r.nextDouble*100, r.nextDouble*100)}
+    val vertices = (0 until 100).toArray.map{_=>LeavesVertex(r.nextDouble*100, r.nextDouble*100, 0.0)}
     val factory = new GeometryFactory
     vertices.foreach(v=>println(factory.createPoint(new Coordinate(v.vx,v.vy))))
     println(CharacteristicShape(vertices,threshold))

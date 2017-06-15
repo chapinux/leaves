@@ -47,7 +47,7 @@ object Grammar1 extends App {
             val previous_pos = head.position
             val newt = head.move((length * cos(head.heading)), (length * sin(head.heading)))
             //  println(s"FFF $previous_pos to ${newt.position}")
-            lines = lines :+ Line(Vertex(previous_pos._1, previous_pos._2), Vertex(newt.position._1, newt.position._2))
+            lines = lines :+ Line(Vertex(previous_pos._1, previous_pos._2,0), Vertex(newt.position._1, newt.position._2,0))
             (newt, stack)
           case ('f') => (head.move((length * cos(head.heading)), (length * sin(head.heading))), stack)
           case ('+') => (head.rotate(delta), stack)
@@ -61,7 +61,7 @@ object Grammar1 extends App {
             polygons = polygons :+ vertices
             (head, stack)
           case ('.') =>
-            vertices = vertices :+ new Vertex(head.position._1, head.position._2)
+            vertices = vertices :+ new Vertex(head.position._1, head.position._2,0)
             (head, stack)
           case _ => (head, stack)
         }

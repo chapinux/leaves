@@ -1,5 +1,6 @@
 package leaves
 
+import com.vividsolutions.jts.geom._
 import com.vividsolutions.jts.geom.{Coordinate, Geometry, GeometryFactory}
 import better.files._
 import scalatags.Text.{svgAttrs, svgTags}
@@ -25,10 +26,20 @@ import scalatags.Text.svgTags
  */
 
 object Rendering {
+  val fact = new GeometryFactory
 
+  def variableWidthBuffer(p0: Coordinate, p1: Coordinate, width0: Double, width1: Double):Geometry = {
+    val seg = new LineSegment(p0, p1)
+    val dist0 = width0 / 2
+    val dist1 = width1 / 2
+    val s0 = seg.pointAlongOffset(0, dist0)
+    val s1 = seg.pointAlongOffset(1, dist1)
+    val s2 = seg.pointAlongOffset(1, -dist1)
+    val s3 = seg.pointAlongOffset(0, -dist0)
+    fact.createGeometryCollection(Array(fact.createPoint(p0).buffer(width0/2.0),fact.createPoint(p1).buffer(width1/2.0),fact.createPolygon(Array(s0, s1, s2, s3, s0)))).union()
+  }
 
-  case class Vertex(vx: Double, vy: Double)
-
+  case class Vertex(vx: Double, vy: Double, thickness: Double)
   case class Line(fromVertex: Vertex, toVertex: Vertex)
 
   def apply(lines: Seq[Line],
@@ -41,18 +52,18 @@ object Rendering {
       vertexToCoordinate
     }
 
-    val fact = new GeometryFactory
     val jtsGemoteries: Seq[Geometry] = polygons.map { p =>
       fact.createPolygon(p.seq.toArray :+ p.seq.head)
     } ++ lines.map { l =>
-      fact.createLineString(Array(l.fromVertex, l.toVertex))
+      variableWidthBuffer(l.fromVertex, l.toVertex, l.fromVertex.thickness / 2.0, l.toVertex.thickness)
+      //fact.createLineString(Array(l.fromVertex, l.toVertex))
     }
 
-    jtsGemoteries.foreach {
-      println
-    }
-
-    val collection = fact.createGeometryCollection(jtsGemoteries.toArray)
+//    jtsGemoteries.foreach {
+//      println
+//    }
+    val collection = fact.createGeometryCollection(jtsGemoteries.toArray).union
+    println(collection)
     println(collection.getArea)
     println(collection.getLength)
 
