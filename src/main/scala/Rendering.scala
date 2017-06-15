@@ -67,17 +67,12 @@ object Rendering {
     val jtsGemoteries: Seq[Geometry] = polygons.map { p =>
       fact.createPolygon(p.seq.toArray :+ p.seq.head)
     } ++ lines.map { l =>
-      variableWidthBuffer(l.fromVertex, l.toVertex, l.fromVertex.thickness / 2.0, l.toVertex.thickness)
-      //fact.createLineString(Array(l.fromVertex, l.toVertex))
+      variableWidthBuffer(l.fromVertex, l.toVertex, l.fromVertex.thickness, l.toVertex.thickness)
     }
 
-    //    jtsGemoteries.foreach {
-    //      println
-    //    }
     val collection = fact.createGeometryCollection(jtsGemoteries.toArray).union
     println(collection.getArea)
     println(collection.getLength)
-
 
     //SVG
     val painter = leaves.svg.startPath(0, 0)

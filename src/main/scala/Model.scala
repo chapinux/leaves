@@ -24,20 +24,21 @@ import better.files._
 object Model extends App {
 
   override def main(args: Array[String]) = apply(
-    20.0,
+    70.0,
     100.0,
-    15.0, 0.95, math.toRadians(45), 1,
-    15.0, 0.85, math.toRadians(45), 3,
-    15.0, 0.75, math.toRadians(25), 2,
-    5.0, 0.5, math.toRadians(1), 1,
-    5.0, 0.19, math.toRadians(31), 5
+    15.0, 0.75, math.toRadians(0), 1, 0.00,
+    15.0, 2.75, math.toRadians(45), 3, 0.66,
+    15.0, 2.75, math.toRadians(45), 3, 0.66,
+    15.0, 2.45, math.toRadians(45), 3, 0.66,
+    15.0, 0.15, math.toRadians(45), 3, 0.66
   )
 
   case class Level(
                     thickness: Double,
                     decreaseRate: Double,
                     angle: Double,
-                    nbBifurcation: Int
+                    nbBifurcation: Int,
+                    sterilityRate: Double
                   )
 
   def apply(
@@ -48,34 +49,39 @@ object Model extends App {
              decreaseRate0: Double,
              angle0: Double,
              nbBifurcation0: Int,
+             sterilityRate0: Double,
 
              thickness1: Double,
              decreaseRate1: Double,
              angle1: Double,
              nbBifurcation1: Int,
+             sterilityRate1: Double,
 
              thickness2: Double,
              decreaseRate2: Double,
              angle2: Double,
              nbBifurcation2: Int,
+             sterilityRate2: Double,
 
              thickness3: Double,
              decreaseRate3: Double,
              angle3: Double,
              nbBifurcation3: Int,
+             sterilityRate3: Double,
 
              thickness4: Double,
              decreaseRate4: Double,
              angle4: Double,
-             nbBifurcation4: Int
+             nbBifurcation4: Int,
+             sterilityRate4: Double
            ) = {
 
     val levels = Map(
-      0 -> Level(thickness0, decreaseRate0, angle0, nbBifurcation0),
-      1 -> Level(thickness1, decreaseRate1, angle1, nbBifurcation1),
-      2 -> Level(thickness2, decreaseRate2, angle2, nbBifurcation2),
-      3 -> Level(thickness3, decreaseRate3, angle3, nbBifurcation3),
-      4 -> Level(thickness4, decreaseRate4, angle4, nbBifurcation4)
+      0 -> Level(thickness0, decreaseRate0, angle0, nbBifurcation0, sterilityRate0),
+      1 -> Level(thickness1, decreaseRate1, angle1, nbBifurcation1, sterilityRate1),
+      2 -> Level(thickness2, decreaseRate2, angle2, nbBifurcation2, sterilityRate2),
+      3 -> Level(thickness3, decreaseRate3, angle3, nbBifurcation3, sterilityRate3),
+      4 -> Level(thickness4, decreaseRate4, angle4, nbBifurcation4, sterilityRate4)
     )
 
     val turtle0 = Turtle(500, 500, levels(0).angle, levels(0).decreaseRate)
@@ -93,6 +99,11 @@ object Model extends App {
       else levels(d + 1)
     }.thickness
 
+    def fertile(nbBif: Int, sterileRate: Double): Seq[Int] = {
+      val nbSterile = ((nbBif * sterileRate) / 2).ceil.toInt
+      (1 to nbBif).drop(nbSterile).dropRight(nbSterile)
+    }
+
     def iter(curDepth: Int, currentDecrease: Double, curTurtle: Turtle): Unit = {
       if (curDepth < 5) {
         val curLevel = levels(curDepth)
@@ -102,25 +113,28 @@ object Model extends App {
         for (
           curBif <- 1 to curLevel.nbBifurcation
         ) yield {
+
           val angle = (curBif - ((curLevel.nbBifurcation) / 2) + shift(curLevel.nbBifurcation)) * curLevel.angle
-          val newT = curTurtle.rotate(angle).move(currentLength, currentLength )
+          val newT = curTurtle.rotate(angle).move(currentLength, currentLength)
           val oldVertex = Vertex(curTurtle.position._1, curTurtle.position._2, curLevel.thickness)
           val newVertex = Vertex(newT.position._1, newT.position._2, nextThickness(curDepth))
+          val curFertility = fertile(curLevel.nbBifurcation, curLevel.sterilityRate)
           lines = lines :+ Line(oldVertex, newVertex)
 //          val nbSegments = (currentLength / curLevel.thickness).toInt
 //          val x = (newT.x - curTurtle.x) / nbSegments
 //          val y = (newT.y - curTurtle.y) / nbSegments
 //          for (i <- 1 to nbSegments) vertices = vertices :+ Vertex(curTurtle.position._1 + i * x, curTurtle.position._2 + i * y, curLevel.thickness)
           vertices = vertices :+ newVertex
-          iter(curDepth + 1, currentRatio, newT)
+          if (curFertility.contains(curBif)) {
+            iter(curDepth + 1, currentRatio, newT)
+          }
         }
       }
     }
 
     iter(0, 1, turtle0)
-    val shape = CharacteristicShape.fromLines(lines, 1.0)
+    val shape = CharacteristicShape.fromLines(lines, 1000.0)
+    println(shape)
     Rendering(lines, Seq(shape.getExteriorRing.getCoordinates.map{c=> Vertex(c.x, c.y)}), "/tmp" / "model.svg")
   }
-
 }
-
