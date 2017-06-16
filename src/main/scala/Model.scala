@@ -2,7 +2,7 @@ package leaves
 
 import leaves.Rendering.{Line, Vertex}
 import leaves.Vegetal.Turtle
-import better.files._
+import better.files.File
 
 /*
  * Copyright (C) 14/06/17 // mathieu.leclaire@openmole.org
@@ -73,7 +73,9 @@ object Model extends App {
              decreaseRate4: Double,
              angle4: Double,
              nbBifurcation4: Int,
-             sterilityRate4: Double
+             sterilityRate4: Double,
+
+             render: Boolean = false
            ) = {
 
     val levels = Map(
@@ -109,21 +111,15 @@ object Model extends App {
         val curLevel = levels(curDepth)
         val currentRatio = curLevel.decreaseRate * currentDecrease
         val currentLength = length * currentRatio
-
         for (
           curBif <- 1 to curLevel.nbBifurcation
         ) yield {
-
           val angle = (curBif - ((curLevel.nbBifurcation) / 2) + shift(curLevel.nbBifurcation)) * curLevel.angle
           val newT = curTurtle.rotate(angle).move(currentLength, currentLength)
           val oldVertex = Vertex(curTurtle.position._1, curTurtle.position._2, curLevel.thickness)
           val newVertex = Vertex(newT.position._1, newT.position._2, nextThickness(curDepth))
           val curFertility = fertile(curLevel.nbBifurcation, curLevel.sterilityRate)
           lines = lines :+ Line(oldVertex, newVertex)
-//          val nbSegments = (currentLength / curLevel.thickness).toInt
-//          val x = (newT.x - curTurtle.x) / nbSegments
-//          val y = (newT.y - curTurtle.y) / nbSegments
-//          for (i <- 1 to nbSegments) vertices = vertices :+ Vertex(curTurtle.position._1 + i * x, curTurtle.position._2 + i * y, curLevel.thickness)
           vertices = vertices :+ newVertex
           if (curFertility.contains(curBif)) {
             iter(curDepth + 1, currentRatio, newT)
@@ -134,8 +130,7 @@ object Model extends App {
 
     iter(0, 1, turtle0)
     val shape = CharacteristicShape.fromLines(lines, 1000.0)
-    //println(shape)
-    Rendering(lines, Seq(shape.getExteriorRing.getCoordinates.map{c=> Vertex(c.x, c.y)}), better.files.File("model.svg"))
+    if (render) Rendering(lines, Seq(shape.getExteriorRing.getCoordinates.map{c=> Vertex(c.x, c.y)}), File("model.svg"))
     (shape.getArea, shape.getLength)
   }
 }
