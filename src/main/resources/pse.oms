@@ -1,0 +1,129 @@
+val alphaShape = Val[Double]
+
+val thickness0 = Val[Double]
+val decreaseRate0 = Val[Double]
+val angle0 = Val[Double]
+val nbBifurcation0 = Val[Double]
+val sterilityRate0 = Val[Double]
+
+val thickness1 = Val[Double]
+val decreaseRate1 = Val[Double]
+val angle1 = Val[Double]
+val nbBifurcation1 = Val[Double]
+val sterilityRate1 = Val[Double]
+
+val thickness2 = Val[Double]
+val decreaseRate2 = Val[Double]
+val angle2 = Val[Double]
+val nbBifurcation2 = Val[Double]
+val sterilityRate2 = Val[Double]
+
+val thickness3 = Val[Double]
+val decreaseRate3 = Val[Double]
+val angle3 = Val[Double]
+val nbBifurcation3 = Val[Double]
+val sterilityRate3 = Val[Double]
+
+val thickness4 = Val[Double]
+val decreaseRate4 = Val[Double]
+val angle4 = Val[Double]
+val nbBifurcation4 = Val[Double]
+val sterilityRate4 = Val[Double]
+
+val area = Val[Double]
+val perimeter = Val[Double]
+
+def modelOutputs = Seq(area, perimeter)
+
+val model =
+  ScalaTask("""
+    |val (area, perimeter) =
+    |   leaves.Model(alphaShape,
+    |     thickness0,decreaseRate0,nbBifurcation0.toInt,sterilityRate0),
+    |     thickness1,decreaseRate1,nbBifurcation0.toInt,sterilityRate1),
+    |     thickness2,decreaseRate2,nbBifurcation0.toInt,sterilityRate2),
+    |     thickness3,decreaseRate3,nbBifurcation0.toInt,sterilityRate3),
+    |     thickness4,decreaseRate4,nbBifurcation0.toInt,sterilityRate4))
+    |""".stripMargin) set (
+    libraries += workDirectory / "leaves.jar",
+    inputs += (
+        alphaShape,
+        thickness0,
+        decreaseRate0,
+        angle0,
+        nbBifurcation0,
+        sterilityRate0,
+        thickness1,
+        decreaseRate1,
+        angle1,
+        nbBifurcation1,
+        sterilityRate1,
+        thickness2,
+        decreaseRate2,
+        angle2,
+        nbBifurcation2,
+        sterilityRate2,
+        thickness3,
+        decreaseRate3,
+        angle3,
+        nbBifurcation3,
+        sterilityRate3,
+        thickness4,
+        decreaseRate4,
+        angle4,
+        nbBifurcation4,
+        sterilityRate4),
+    outputs += (modelOutputs: _*)
+  )
+
+val pse =
+  PSE(
+    genome = Seq(
+        alphaShape in (1.0, 100.0),
+        thickness0 in (1.0, 10.0),
+        decreaseRate0 in (0.5, 1.5),
+        angle0 in (0.0, 180.0),
+        nbBifurcation0 in (0.0, 10.0),
+        sterilityRate0 in (0.0, 1.0),
+        thickness1 in (1.0, 10.0),
+        decreaseRate1 in (0.5, 1.5),
+        angle1 in (0.0, 180.0),
+        nbBifurcation1 in (0.0, 10.0),
+        sterilityRate1 in (0.0, 1.0),
+        thickness2 in (1.0, 10.0),
+        decreaseRate2 in (0.5, 1.5),
+        angle2 in (0.0, 180.0),
+        nbBifurcation2 in (0.0, 10.0),
+        sterilityRate2 in (0.0, 1.0),
+        thickness3 in (1.0, 10.0),
+        decreaseRate3 in (0.5, 1.5),
+        angle3 in (0.0, 180.0),
+        nbBifurcation3 in (0.0, 10.0),
+        sterilityRate3 in (0.0, 1.0),
+        thickness4 in (1.0, 10.0),
+        decreaseRate4 in (0.5, 1.5),
+        angle4 in (0.0, 180.0),
+        nbBifurcation4 in (0.0, 10.0),
+        sterilityRate4 in (0.0, 1.0)
+        ),
+    objectives =  Seq(
+      area in (0.0 to 40000.0 by 4000.0),
+      perimeter in (0.0 to 100000.0 by 10000.0)
+      )
+ )
+
+val evolution =
+  SteadyStateEvolution(
+    algorithm = pse,
+    evaluation = model,
+    parallelism = 1000,
+    termination = 100000
+  )
+
+val env = EGIEnvironment("vo.complex-systems.eu")
+
+// Define a hook to save the Pareto frontier
+val savePopulationHook = SavePopulationHook(evolution, workDirectory / "pse")
+
+// Plug everything together to create the workflow
+(evolution hook savePopulationHook on env)

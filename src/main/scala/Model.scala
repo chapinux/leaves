@@ -25,12 +25,11 @@ object Model extends App {
 
   override def main(args: Array[String]) = apply(
     args(0).toDouble,
-    args(1).toDouble,
-    args(2).toDouble, args(3).toDouble, math.toRadians(args(4).toDouble), args(5).toInt, args(6).toDouble,
-    args(7).toDouble, args(8).toDouble, math.toRadians(args(9).toDouble), args(10).toInt, args(11).toDouble,
-    args(12).toDouble, args(13).toDouble, math.toRadians(args(14).toDouble), args(15).toInt, args(16).toDouble,
-    args(17).toDouble, args(18).toDouble, math.toRadians(args(19).toDouble), args(20).toInt, args(21).toDouble,
-    args(22).toDouble, args(23).toDouble, math.toRadians(args(24).toDouble), args(25).toInt, args(26).toDouble
+    args(1).toDouble, args(2).toDouble, math.toRadians(args(3).toDouble), args(4).toInt, args(5).toDouble,
+    args(6).toDouble, args(7).toDouble, math.toRadians(args(8).toDouble), args(9).toInt, args(10).toDouble,
+    args(11).toDouble, args(12).toDouble, math.toRadians(args(13).toDouble), args(14).toInt, args(15).toDouble,
+    args(16).toDouble, args(17).toDouble, math.toRadians(args(18).toDouble), args(19).toInt, args(20).toDouble,
+    args(21).toDouble, args(22).toDouble, math.toRadians(args(23).toDouble), args(24).toInt, args(25).toDouble
   )
 
   case class Level(
@@ -43,7 +42,6 @@ object Model extends App {
 
   def apply(
              alphaShape: Double,
-             length: Double,
 
              thickness0: Double,
              decreaseRate0: Double,
@@ -88,6 +86,8 @@ object Model extends App {
 
     val turtle0 = Turtle(200, 200, levels(0).angle, levels(0).decreaseRate)
 
+    val length = 10.0
+
     var lines: Seq[Line] = Seq()
     var vertices: Seq[Vertex] = Seq()
 
@@ -129,7 +129,7 @@ object Model extends App {
     }
 
     iter(0, 1, turtle0)
-    val shape = CharacteristicShape.fromLines(lines, 1000.0)
+    val shape = CharacteristicShape.fromLines(lines, alphaShape)
     if (render) Rendering(lines, Seq(shape.getExteriorRing.getCoordinates.map{c=> Vertex(c.x, c.y)}), File("model.svg"))
     (shape.getArea, shape.getLength)
   }
