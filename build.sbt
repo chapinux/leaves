@@ -21,6 +21,7 @@ resolvers in ThisBuild ++= Seq(
 val leaves = project in (file(".")) settings(
   mainClass in assembly := Some("leaves.Model"),
   assemblyJarName in assembly := "leaves.jar",
+  assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false),
   libraryDependencies ++= Seq(
     "com.vividsolutions" % "jts" % jtsVersion,
     "com.lihaoyi" %% "scalatags" % scalatagsVersion,
