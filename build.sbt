@@ -18,6 +18,15 @@ resolvers in ThisBuild ++= Seq(
   "geotoolkit" at "http://maven.geotoolkit.org/"
 )
 
+
+osgiSettings
+
+OsgiKeys.exportPackage := Seq("leaves.*")
+
+OsgiKeys.importPackage := Seq("*;resolution:=optional")
+
+OsgiKeys.privatePackage := Seq("!scala.*,!java.*,*")
+
 val leaves = project in (file(".")) settings(
   mainClass in assembly := Some("leaves.Model"),
   assemblyJarName in assembly := "leaves.jar",
