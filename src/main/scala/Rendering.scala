@@ -2,7 +2,6 @@ package leaves
 
 import com.vividsolutions.jts.geom._
 import com.vividsolutions.jts.geom.{Coordinate, Geometry, GeometryFactory}
-import better.files._
 
 import scalatags.Text.{svgAttrs, svgTags}
 import scalatags.Text.all._
@@ -79,8 +78,8 @@ object Rendering {
     val painterPath = lines.foldLeft(painter)((painter, line) => painter.m(line.fromVertex.vx, line.fromVertex.vy).l(line.toVertex.vx, line.toVertex.vy))
 
     val svgTag = svgTags.svg(
-      svgAttrs.width := 800,
-      svgAttrs.height := 800,
+      svgAttrs.width := "100%",
+      svgAttrs.height := "100%",
       svgAttrs.xmlns := "http://www.w3.org/2000/svg",
       for {
         p <- polygons

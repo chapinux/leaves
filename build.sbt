@@ -1,7 +1,6 @@
 
 import sbt._
 import Keys._
-//import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport._
 
 name := "Leaves"
 
@@ -13,14 +12,18 @@ val jtsVersion = "1.13"
 val scalatagsVersion = "0.6.5"
 val betterFileVersion = "2.15.0"
 
-resolvers ++= Seq(
+resolvers in ThisBuild ++= Seq(
   "osgeo" at "http://download.osgeo.org/webdav/geotools/",
   "geosolutions" at "http://maven.geo-solutions.it/",
   "geotoolkit" at "http://maven.geotoolkit.org/"
 )
 
-libraryDependencies ++= Seq (
-  "com.vividsolutions" % "jts" % jtsVersion,
-  "com.lihaoyi" %% "scalatags" % scalatagsVersion,
-  "com.github.pathikrit" % "better-files_2.11" % betterFileVersion
+val leaves = project in (file(".")) settings(
+  mainClass in assembly := Some("leaves.Model"),
+  assemblyJarName in assembly := "leaves.jar",
+  libraryDependencies ++= Seq(
+    "com.vividsolutions" % "jts" % jtsVersion,
+    "com.lihaoyi" %% "scalatags" % scalatagsVersion,
+    "com.github.pathikrit" % "better-files_2.11" % betterFileVersion
+  )
 )

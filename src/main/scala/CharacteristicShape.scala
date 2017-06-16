@@ -1,8 +1,9 @@
+package  leaves
+
 import com.vividsolutions.jts.geom._
 import com.vividsolutions.jts.operation.linemerge.LineMerger
 import com.vividsolutions.jts.triangulate.DelaunayTriangulationBuilder
 import com.vividsolutions.jts.triangulate.quadedge.{QuadEdge, QuadEdgeTriangle, Vertex => QuadVertex}
-import leaves.Rendering
 import leaves.Rendering.{Line => LeavesLine, Vertex => LeavesVertex}
 
 import collection.JavaConverters._

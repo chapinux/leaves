@@ -1,6 +1,6 @@
-import leaves.Rendering
+package leaves
+
 import leaves.Rendering.{Line, Vertex}
-import leaves.Rendering._
 import leaves.Vegetal.Turtle
 import better.files._
 
@@ -84,7 +84,7 @@ object Model extends App {
       4 -> Level(thickness4, decreaseRate4, angle4, nbBifurcation4, sterilityRate4)
     )
 
-    val turtle0 = Turtle(500, 500, levels(0).angle, levels(0).decreaseRate)
+    val turtle0 = Turtle(200, 200, levels(0).angle, levels(0).decreaseRate)
 
     var lines: Seq[Line] = Seq()
     var vertices: Seq[Vertex] = Seq()
@@ -135,7 +135,7 @@ object Model extends App {
     iter(0, 1, turtle0)
     val shape = CharacteristicShape.fromLines(lines, 1000.0)
     //println(shape)
-    Rendering(lines, Seq(shape.getExteriorRing.getCoordinates.map{c=> Vertex(c.x, c.y)}), "model.svg")
+    Rendering(lines, Seq(shape.getExteriorRing.getCoordinates.map{c=> Vertex(c.x, c.y)}), better.files.File("model.svg"))
     (shape.getArea, shape.getLength)
   }
 }
