@@ -31,6 +31,10 @@ object Model {
                     sterilityRate: Double
                   )
 
+  // sterility rate: rate of nodes, which do not get any child. If the rate is positive, the sterile nodes are taken on the peripheric branches, in the center otherwise
+  // Ex: nbBif = 3, sterilityRate = 0,66=> we keep the main one
+  //     nbBif = 3, sterilityRate = -0,33, we keep the two peripheric branches
+
   def apply(
              alphaShape: Double,
 
@@ -77,7 +81,7 @@ object Model {
 
     val turtle0 = Turtle(200, 200, levels(0).angle, levels(0).decreaseRate)
 
-    val length = 10.0
+    val length = 100.0
 
     var lines: Seq[Line] = Seq()
     var vertices: Seq[Vertex] = Seq()
@@ -93,8 +97,20 @@ object Model {
     }.thickness
 
     def fertile(nbBif: Int, sterileRate: Double): Seq[Int] = {
-      val nbSterile = ((nbBif * sterileRate) / 2).ceil.toInt
-      (1 to nbBif).drop(nbSterile).dropRight(nbSterile)
+      val centrality = sterileRate > 0
+      val bifs = (1 to nbBif)
+      if (centrality) {
+        val nbSterile = math.abs(((nbBif * sterileRate) / 2).ceil.toInt)
+        bifs.drop(nbSterile).dropRight(nbSterile)
+      }
+      else {
+        val toDrop = math.abs(nbBif * sterileRate)
+        val o = bifs.dropWhile(i=> (i > toDrop) && (i < nbBif + toDrop))
+       println("nb ster " +toDrop)
+        println("O " + o)
+
+        o
+      }
     }
 
     def iter(curDepth: Int, currentDecrease: Double, curTurtle: Turtle): Unit = {
