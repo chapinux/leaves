@@ -1,5 +1,3 @@
-import leaves._
-
 val alphaShape = Val[Double]
 
 val thickness0 = Val[Double]
@@ -39,13 +37,14 @@ def modelOutputs = Seq(area, perimeter)
 
 val model =
   ScalaTask("""
+    |import leaves._
     |val (area, perimeter) =
     |   leaves.Model(alphaShape,
-    |     thickness0,decreaseRate0,angle0,nbBifurcation0.toInt,sterilityRate0,
-    |     thickness1,decreaseRate1,angle1,nbBifurcation0.toInt,sterilityRate1,
-    |     thickness2,decreaseRate2,angle2,nbBifurcation0.toInt,sterilityRate2,
-    |     thickness3,decreaseRate3,angle3,nbBifurcation0.toInt,sterilityRate3,
-    |     thickness4,decreaseRate4,angle4,nbBifurcation0.toInt,sterilityRate4)
+    |     thickness0,decreaseRate0,angle0,nbBifurcation0.round.toInt,sterilityRate0,
+    |     thickness1,decreaseRate1,angle1,nbBifurcation1.round.toInt,sterilityRate1,
+    |     thickness2,decreaseRate2,angle2,nbBifurcation2.round.toInt,sterilityRate2,
+    |     thickness3,decreaseRate3,angle3,nbBifurcation3.round.toInt,sterilityRate3,
+    |     thickness4,decreaseRate4,angle4,nbBifurcation4.round.toInt,sterilityRate4)
     |""".stripMargin) set (
     plugins += pluginsOf(leaves.Model),
     inputs += (
