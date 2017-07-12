@@ -136,7 +136,7 @@ object Model {
     }
 
     iter(0, 1, turtle0)
-    val shape = CharacteristicShape.fromLines(lines, alphaShape)
+    val shape = CharacteristicShape.fromLines(lines, alphaShape, Some(0.1))
     if (render) Rendering(lines, Seq(shape.getExteriorRing.getCoordinates.map{c=> Vertex(c.x, c.y)}), File("model.svg"))
     (shape.getArea, shape.getLength)
   }
