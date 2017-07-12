@@ -105,11 +105,7 @@ object Model {
       }
       else {
         val toDrop = math.abs(nbBif * sterileRate)
-        val o = bifs.dropWhile(i=> (i > toDrop) && (i < nbBif + toDrop))
-       println("nb ster " +toDrop)
-        println("O " + o)
-
-        o
+        bifs.dropWhile(i=> (i > toDrop) && (i < nbBif + toDrop))
       }
     }
 
@@ -136,7 +132,7 @@ object Model {
     }
 
     iter(0, 1, turtle0)
-    val shape = CharacteristicShape.fromLines(lines, alphaShape, Some(0.1))
+    val shape = CharacteristicShape.fromLines(lines, alphaShape, Some(6)/*Some(Array(thickness0, thickness1, thickness2, thickness3, thickness4).max)*/)
     if (render) Rendering(lines, Seq(shape.getExteriorRing.getCoordinates.map{c=> Vertex(c.x, c.y)}), File("model.svg"))
     (shape.getArea, shape.getLength)
   }
