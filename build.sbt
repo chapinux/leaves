@@ -25,7 +25,7 @@ OsgiKeys.exportPackage := Seq("leaves.*")
 
 OsgiKeys.importPackage := Seq("*;resolution:=optional")
 
-OsgiKeys.privatePackage := Seq("!scala.*,!java.*,*")
+OsgiKeys.privatePackage := Seq("!java.*,*")
 
 val leaves = project in (file(".")) settings(
   mainClass in assembly := Some("leaves.Model"),
