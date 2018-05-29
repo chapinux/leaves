@@ -27,10 +27,11 @@ OsgiKeys.exportPackage := Seq("leaves.*")
 
 OsgiKeys.importPackage := Seq("*;resolution:=optional")
 
-OsgiKeys.privatePackage := Seq("!java.*,*")
+OsgiKeys.privatePackage := Seq("!java.*","!scala.*","*")
 
 val leaves = project in (file(".")) settings(
   mainClass in assembly := Some("leaves.Model"),
+  OsgiKeys.requireCapability := """osgi.ee; osgi.ee="JavaSE";version:List="1.8,1.9""""",
   assemblyJarName in assembly := "leaves.jar",
   assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false),
   libraryDependencies ++= Seq(
