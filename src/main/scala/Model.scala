@@ -1,8 +1,12 @@
 package leaves
 
+import better.files.File
 import leaves.Rendering.{Line, Vertex}
 import leaves.Vegetal.Turtle
-import better.files.File
+import org.locationtech.jts.geom.{Coordinate, GeometryFactory, Polygon, PrecisionModel}
+import org.locationtech.jts.precision.GeometryPrecisionReducer
+
+import scala.util.{Failure, Success, Try}
 
 /*
  * Copyright (C) 14/06/17 // mathieu.leclaire@openmole.org
@@ -68,8 +72,8 @@ object Model {
              nbBifurcation4: Int,
              sterilityRate4: Double,
 
-             render: Boolean = false
-           ) = {
+             file: Option[File] = None
+           ): (Double, Double) = {
 
     val levels = Map(
       0 -> Level(thickness0, decreaseRate0, angle0, nbBifurcation0, sterilityRate0),
@@ -98,7 +102,7 @@ object Model {
 
     def fertile(nbBif: Int, sterileRate: Double): Seq[Int] = {
       val centrality = sterileRate > 0
-      val bifs = (1 to nbBif)
+      val bifs = 1 to nbBif
       if (centrality) {
         val nbSterile = math.abs(((nbBif * sterileRate) / 2).ceil.toInt)
         bifs.drop(nbSterile).dropRight(nbSterile)
@@ -114,10 +118,12 @@ object Model {
         val curLevel = levels(curDepth)
         val currentRatio = curLevel.decreaseRate * currentDecrease
         val currentLength = length * currentRatio
+        //println("curDepth= " + curDepth + " - level = " + curLevel + " - bif = " + curLevel.nbBifurcation)
         for (
           curBif <- 1 to curLevel.nbBifurcation
         ) yield {
-          val angle = (curBif - ((curLevel.nbBifurcation) / 2) + shift(curLevel.nbBifurcation)) * curLevel.angle
+          //println("curBif = " + curBif)
+          val angle = (curBif - (curLevel.nbBifurcation / 2) + shift(curLevel.nbBifurcation)) * curLevel.angle
           val newT = curTurtle.rotate(angle).move(currentLength, currentLength)
           val oldVertex = Vertex(curTurtle.position._1, curTurtle.position._2, curLevel.thickness)
           val newVertex = Vertex(newT.position._1, newT.position._2, nextThickness(curDepth))
@@ -132,8 +138,28 @@ object Model {
     }
 
     iter(0, 1, turtle0)
-    val shape = CharacteristicShape.fromLines(lines, alphaShape, Some(6)/*Some(Array(thickness0, thickness1, thickness2, thickness3, thickness4).max)*/)
-    if (render) Rendering(lines, Seq(shape.getExteriorRing.getCoordinates.map{c=> Vertex(c.x, c.y)}), File("model.svg"))
+    //lines.foreach(println)
+
+    val array = lines.map(l=>Rendering.variableWidthBuffer(
+      new Coordinate(l.fromVertex.vx,l.fromVertex.vy),
+      new Coordinate(l.toVertex.vx,l.toVertex.vy),
+      l.fromVertex.thickness, l.toVertex.thickness, None
+    )).toArray
+    val factory = new GeometryFactory
+    val collection = factory.createGeometryCollection(array)
+    val unionT = Try{collection.union}
+    val union = unionT match {
+      case Success(u) => u
+      case Failure(f) => {
+        val gpr = new GeometryPrecisionReducer(new PrecisionModel(1000))
+        factory.createGeometryCollection(array.map(gpr.reduce)).union
+      }
+    }
+    //println(union)
+    val shape = union.asInstanceOf[Polygon]
+    //val shape = CharacteristicShape.fromLines(lines, alphaShape, Some(1.0)/*Some(Array(thickness0, thickness1, thickness2, thickness3, thickness4).max)*/)
+    file.map{Rendering(lines, Seq(shape.getExteriorRing.getCoordinates.map{c=> Vertex(c.x, c.y)}), _)}
+    //println(shape)
     (shape.getArea, shape.getLength)
   }
 }

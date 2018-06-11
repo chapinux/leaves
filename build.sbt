@@ -8,9 +8,10 @@ version := "1.0"
 
 scalaVersion in ThisBuild := "2.12.6"
 
-val jtsVersion = "1.13"
+val jtsVersion = "1.15.0"
 val scalatagsVersion = "0.6.5"
 val betterFileVersion = "3.4.0"
+val json4sVersion = "3.5.4"
 
 resolvers in ThisBuild ++= Seq(
   "osgeo" at "http://download.osgeo.org/webdav/geotools/",
@@ -35,8 +36,10 @@ val leaves = project in (file(".")) settings(
   assemblyJarName in assembly := "leaves.jar",
   assemblyOption in assembly := (assemblyOption in assembly).value.copy(includeScala = false),
   libraryDependencies ++= Seq(
-    "com.vividsolutions" % "jts" % jtsVersion,
+    //"com.vividsolutions" % "jts" % jtsVersion,
+    "org.locationtech.jts" % "jts-core" % jtsVersion,
     "com.lihaoyi" %% "scalatags" % scalatagsVersion,
-    "com.github.pathikrit" %% "better-files" % betterFileVersion
+    "com.github.pathikrit" %% "better-files" % betterFileVersion,
+    "org.json4s" %% "json4s-native" % json4sVersion
   )
 )

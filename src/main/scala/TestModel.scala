@@ -45,8 +45,7 @@ object TestModel extends App{
       thickness1=5.568224191660408,
       thickness2=7.463144992375982,
       thickness3=9.775215134207098,
-      thickness4=9.9435275933314,
-      render = true
+      thickness4=9.9435275933314
     )
   }
 }
