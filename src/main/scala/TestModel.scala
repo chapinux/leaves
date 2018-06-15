@@ -23,13 +23,13 @@ object TestModel extends App {
 
   override def main(args: Array[String]) = {
     Model(
-      alphaShape = 10.59941807525341,
-      thickness = 9.5,
-      decreaseRate = 0.905849687380363,
-      angle = 0.63897069447752,
+      alphaShape = 40.59941807525341,
+      thickness = 50.5,
+      decreaseRate = 0.705849687380363,
+      angle = 1.52,
       nbBifurcation = 2,
-      alphaRate = 0.35,
-      depth = 12,
+      angleRate = 2.52 ,
+      depth = 7,
       Some(File("/tmp/model.svg"))
     )
   }

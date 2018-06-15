@@ -43,13 +43,13 @@ object Model {
              decreaseRate: Double,
              angle: Double,
              nbBifurcation: Int,
-             alphaRate: Double,
+             angleRate: Double,
              depth: Int,
              file: Option[File] = None
            ) = {
 
 
-    val levels = (0 to depth).map{_-> Level(thickness, decreaseRate, angle, nbBifurcation, alphaRate)}.toMap
+    val levels = (0 to depth).map{_-> Level(thickness, decreaseRate, angle, nbBifurcation, angleRate)}.toMap
 
     val turtle0 = Turtle(200, 200, levels(0).angle, levels(0).decreaseRate)
 
@@ -68,32 +68,31 @@ object Model {
       else levels(d + 1)
     }.thickness
 
-    def iter(curDepth: Int, currentDecrease: Double, curTurtle: Turtle): Unit = {
+    def iter(curDepth: Int, currentDecreaseL: Double, currentDecreaseA: Double, curTurtle: Turtle): Unit = {
       if (curDepth < depth) {
         val curLevel = levels(curDepth)
-        val currentRatio = curLevel.decreaseRate * currentDecrease
-        val currentLength = length * currentRatio
-        println("Cur lenght " + currentLength)
-        val curBif = {
-          if (currentLength < length * alphaRate) 1
-          else curLevel.nbBifurcation
-        }
+        val currentRatioL = curLevel.decreaseRate * currentDecreaseL
+        val currentRatioA = curLevel.alphaRate * currentDecreaseA
+        val currentLength = length * currentRatioL
+        val curBif = curLevel.nbBifurcation
+
         for (
           curBif <- 1 to curBif
         ) yield {
           //println("curBif = " + curBif)
-          val angle = (curBif - (curLevel.nbBifurcation / 2) + shift(curLevel.nbBifurcation)) * curLevel.angle
+          val angle = ((curBif - (curLevel.nbBifurcation / 2) + shift(curLevel.nbBifurcation)) * curLevel.angle * currentRatioA)  % 3.14
+          println("Angle " + angle)
           val newT = curTurtle.rotate(angle).move(currentLength, currentLength)
           val oldVertex = Vertex(curTurtle.position._1, curTurtle.position._2, curLevel.thickness)
           val newVertex = Vertex(newT.position._1, newT.position._2, nextThickness(curDepth))
           lines = lines :+ Line(oldVertex, newVertex)
           vertices = vertices :+ newVertex
-            iter(curDepth + 1, currentRatio, newT)
+            iter(curDepth + 1, currentRatioL, currentRatioA, newT)
         }
       }
     }
 
-    iter(0, 1, turtle0)
+    iter(0, 1, 1, turtle0)
 
     val array = lines.map(l=>Rendering.variableWidthBuffer(
       new Coordinate(l.fromVertex.vx,l.fromVertex.vy),
