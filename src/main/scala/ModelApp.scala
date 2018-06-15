@@ -1,3 +1,4 @@
+import better.files.File
 import leaves.Model
 
 /**
@@ -12,6 +13,6 @@ object ModelApp extends App {
     args(4).toInt,
     args(5).toDouble,
     args(6).toInt,
-    args(7).toBoolean
+    if (args.length == 8) Some(File(args(7))) else None
   )
 }

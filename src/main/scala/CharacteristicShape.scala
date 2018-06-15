@@ -1,9 +1,9 @@
 package  leaves
 
-import com.vividsolutions.jts.geom._
-import com.vividsolutions.jts.operation.linemerge.LineMerger
-import com.vividsolutions.jts.triangulate.DelaunayTriangulationBuilder
-import com.vividsolutions.jts.triangulate.quadedge.{QuadEdge, QuadEdgeTriangle, Vertex => QuadVertex}
+import org.locationtech.jts.geom._
+import org.locationtech.jts.operation.linemerge.LineMerger
+import org.locationtech.jts.triangulate.DelaunayTriangulationBuilder
+import org.locationtech.jts.triangulate.quadedge.{QuadEdge, QuadEdgeTriangle, Vertex => QuadVertex}
 import leaves.Rendering.{Line => LeavesLine, Vertex => LeavesVertex}
 
 import collection.JavaConverters._
@@ -21,6 +21,7 @@ object CharacteristicShape {
   def apply(inputVertices: Seq[(Double,Double)], threshold: Double, tolerance: Option[Double] = None):Polygon = {
     if (inputVertices.size < 3) factory.createPolygon(Array[Coordinate]())
     else {
+    //println(factory.createMultiPoint(inputVertices.map (v => new Coordinate(v._1, v._2)).toArray))
       //Construct the Delaunay triangulation ∆ of P
       val triangulationBuilder = new DelaunayTriangulationBuilder
       tolerance.foreach(triangulationBuilder.setTolerance)
@@ -71,7 +72,7 @@ object CharacteristicShape {
         triangleEdges.foreach{_.triangles+=triangle}
         triangles.put(index, triangle)
       }
-      edges.values.filter(_.triangles.size != 1).foreach {edge=>
+      edges.values.filter(_.triangles.size > 1).foreach {edge=>
         var (tA,tB) = (edge.triangles(0), edge.triangles(1))
         tA.neighbours += tB
         tB.neighbours += tA

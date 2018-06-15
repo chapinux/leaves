@@ -1,5 +1,7 @@
 package leaves
 
+import better.files.File
+
 /*
  * Copyright (C) 19/06/17 // mathieu.leclaire@openmole.org
  *
@@ -21,14 +23,14 @@ object TestModel extends App {
 
   override def main(args: Array[String]) = {
     Model(
-      alphaShape = 100.59941807525341,
+      alphaShape = 10.59941807525341,
       thickness = 9.5,
       decreaseRate = 0.905849687380363,
       angle = 0.63897069447752,
       nbBifurcation = 2,
-      alphaRate = 0.75,
+      alphaRate = 0.35,
       depth = 12,
-      render = true
+      Some(File("/tmp/model.svg"))
     )
   }
 }

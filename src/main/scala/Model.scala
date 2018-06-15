@@ -1,8 +1,12 @@
 package leaves
 
+import better.files.File
 import leaves.Rendering.{Line, Vertex}
 import leaves.Vegetal.Turtle
-import better.files.File
+import org.locationtech.jts.geom.{Coordinate, GeometryFactory, Polygon, PrecisionModel}
+import org.locationtech.jts.precision.GeometryPrecisionReducer
+
+import scala.util.{Failure, Success, Try}
 
 /*
  * Copyright (C) 14/06/17 // mathieu.leclaire@openmole.org
@@ -41,8 +45,9 @@ object Model {
              nbBifurcation: Int,
              alphaRate: Double,
              depth: Int,
-             render: Boolean = false
+             file: Option[File] = None
            ) = {
+
 
     val levels = (0 to depth).map{_-> Level(thickness, decreaseRate, angle, nbBifurcation, alphaRate)}.toMap
 
@@ -63,7 +68,6 @@ object Model {
       else levels(d + 1)
     }.thickness
 
-
     def iter(curDepth: Int, currentDecrease: Double, curTurtle: Turtle): Unit = {
       if (curDepth < depth) {
         val curLevel = levels(curDepth)
@@ -74,11 +78,11 @@ object Model {
           if (currentLength < length * alphaRate) 1
           else curLevel.nbBifurcation
         }
-
         for (
           curBif <- 1 to curBif
         ) yield {
-          val angle = (curBif - ((curLevel.nbBifurcation) / 2) + shift(curLevel.nbBifurcation)) * curLevel.angle
+          //println("curBif = " + curBif)
+          val angle = (curBif - (curLevel.nbBifurcation / 2) + shift(curLevel.nbBifurcation)) * curLevel.angle
           val newT = curTurtle.rotate(angle).move(currentLength, currentLength)
           val oldVertex = Vertex(curTurtle.position._1, curTurtle.position._2, curLevel.thickness)
           val newVertex = Vertex(newT.position._1, newT.position._2, nextThickness(curDepth))
@@ -90,8 +94,28 @@ object Model {
     }
 
     iter(0, 1, turtle0)
-    val shape = CharacteristicShape.fromLines(lines, alphaShape, Some(6))
-    if (render) Rendering(lines, Seq(shape.getExteriorRing.getCoordinates.map{c=> Vertex(c.x, c.y)}), File("model.svg"))
+
+    val array = lines.map(l=>Rendering.variableWidthBuffer(
+      new Coordinate(l.fromVertex.vx,l.fromVertex.vy),
+      new Coordinate(l.toVertex.vx,l.toVertex.vy),
+      l.fromVertex.thickness, l.toVertex.thickness, None
+    )).toArray
+    val factory = new GeometryFactory
+    val collection = factory.createGeometryCollection(array)
+    val unionT = Try{collection.union}
+    val union = unionT match {
+      case Success(u) => u
+      case Failure(f) => {
+        val gpr = new GeometryPrecisionReducer(new PrecisionModel(1000))
+        factory.createGeometryCollection(array.map(gpr.reduce)).union
+      }
+    }
+    //println(union)
+    println("FILLLLLLLLLLLLLLLE " + file.get.toJava.getAbsolutePath)
+    val shape = union.asInstanceOf[Polygon]
+    //val shape = CharacteristicShape.fromLines(lines, alphaShape, Some(1.0)/*Some(Array(thickness0, thickness1, thickness2, thickness3, thickness4).max)*/)
+    file.map{Rendering(lines, Seq(shape.getExteriorRing.getCoordinates.map{c=> Vertex(c.x, c.y)}), _)}
+    //println(shape)
     (shape.getArea, shape.getLength)
   }
 }

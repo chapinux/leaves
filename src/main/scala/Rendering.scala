@@ -1,10 +1,12 @@
 package leaves
 
-import com.vividsolutions.jts.geom._
-import com.vividsolutions.jts.geom.{Coordinate, Geometry, GeometryFactory}
-
+import org.locationtech.jts.geom._
+import org.locationtech.jts.geom.{Coordinate, Geometry, GeometryFactory}
+import org.locationtech.jts.precision.GeometryPrecisionReducer
 import scalatags.Text.{svgAttrs, svgTags}
 import scalatags.Text.all._
+
+import scala.util.{Failure, Success, Try}
 
 /*
  * Copyright (C) 14/06/17 // mathieu.leclaire@openmole.org
@@ -63,19 +65,41 @@ object Rendering {
       vertexToCoordinate
     }
 
-    val jtsGemoteries: Seq[Geometry] = polygons.map { p =>
-      fact.createPolygon(p.seq.toArray :+ p.seq.head)
-    } ++ lines.map { l =>
-      variableWidthBuffer(l.fromVertex, l.toVertex, l.fromVertex.thickness, l.toVertex.thickness)
+//    val jtsGeometries: Seq[Geometry] = polygons.map { p =>
+//      fact.createPolygon(p.seq.toArray :+ p.seq.head)
+//    } ++ lines.map { l =>
+//      variableWidthBuffer(l.fromVertex, l.toVertex, l.fromVertex.thickness, l.toVertex.thickness)
+//    }
+    val jtsGeometries = lines.map(l=>Rendering.variableWidthBuffer(
+          new Coordinate(l.fromVertex.vx,l.fromVertex.vy),
+          new Coordinate(l.toVertex.vx,l.toVertex.vy),
+          l.fromVertex.thickness, l.toVertex.thickness, None
+        ))
+    val array = jtsGeometries.toArray
+//    val array = lines.map(l=>Rendering.variableWidthBuffer(
+//      new Coordinate(l.fromVertex.vx,l.fromVertex.vy),
+//      new Coordinate(l.toVertex.vx,l.toVertex.vy),
+//      l.fromVertex.thickness, l.toVertex.thickness, None
+//    )).toArray
+
+    val collection = fact.createGeometryCollection(array)
+    val unionT = Try{collection.union}
+    val union = unionT match {
+      case Success(u) => u
+      case Failure(f) => {
+        val gpr = new GeometryPrecisionReducer(new PrecisionModel(1000))
+        fact.createGeometryCollection(array.map(gpr.reduce)).union
+      }
     }
 
-    val collection = fact.createGeometryCollection(jtsGemoteries.toArray).union
-    println(collection.getArea)
-    println(collection.getLength)
+    //println(union.getArea)
+    //println(union.getLength)
 
+    val minX = union.getEnvelopeInternal.getMinX
+    val minY = union.getEnvelopeInternal.getMinY
     //SVG
     val painter = leaves.svg.startPath(0, 0)
-    val painterPath = lines.foldLeft(painter)((painter, line) => painter.m(line.fromVertex.vx, line.fromVertex.vy).l(line.toVertex.vx, line.toVertex.vy))
+    val painterPath = lines.foldLeft(painter)((painter, line) => painter.m(line.fromVertex.vx-minX, line.fromVertex.vy-minY).l(line.toVertex.vx-minX, line.toVertex.vy-minY))
 
     val svgTag = svgTags.svg(
       svgAttrs.width := "100%",
@@ -84,10 +108,11 @@ object Rendering {
       for {
         p <- polygons
       } yield {
+        val translated = p.seq.map(v=>(v.vx-minX, v.vy-minY))
         svgTags.polygon(
           svgAttrs.stroke := "black",
           svgAttrs.fill := "yellow",
-          svgAttrs.points := p.seq.foldLeft("") { (acc, v) => acc ++ s"${v.vx},${v.vy} " }
+          svgAttrs.points := translated.foldLeft("") { (acc, v) => acc ++ s"${v._1},${v._2} " }
         )
       },
       svgTags.path(
