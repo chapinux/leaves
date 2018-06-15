@@ -28,56 +28,23 @@ object Model {
                     decreaseRate: Double,
                     angle: Double,
                     nbBifurcation: Int,
-                    sterilityRate: Double
+                    alphaRate: Double
                   )
 
-  // sterility rate: rate of nodes, which do not get any child. If the rate is positive, the sterile nodes are taken on the peripheric branches, in the center otherwise
-  // Ex: nbBif = 3, sterilityRate = 0,66=> we keep the main one
-  //     nbBif = 3, sterilityRate = -0,33, we keep the two peripheric branches
+// alphaRate: Rate on the initial length below which the number of bifurcations is 1.
 
   def apply(
              alphaShape: Double,
-
-             thickness0: Double,
-             decreaseRate0: Double,
-             angle0: Double,
-             nbBifurcation0: Int,
-             sterilityRate0: Double,
-
-             thickness1: Double,
-             decreaseRate1: Double,
-             angle1: Double,
-             nbBifurcation1: Int,
-             sterilityRate1: Double,
-
-             thickness2: Double,
-             decreaseRate2: Double,
-             angle2: Double,
-             nbBifurcation2: Int,
-             sterilityRate2: Double,
-
-             thickness3: Double,
-             decreaseRate3: Double,
-             angle3: Double,
-             nbBifurcation3: Int,
-             sterilityRate3: Double,
-
-             thickness4: Double,
-             decreaseRate4: Double,
-             angle4: Double,
-             nbBifurcation4: Int,
-             sterilityRate4: Double,
-
+             thickness: Double,
+             decreaseRate: Double,
+             angle: Double,
+             nbBifurcation: Int,
+             alphaRate: Double,
+             depth: Int,
              render: Boolean = false
            ) = {
 
-    val levels = Map(
-      0 -> Level(thickness0, decreaseRate0, angle0, nbBifurcation0, sterilityRate0),
-      1 -> Level(thickness1, decreaseRate1, angle1, nbBifurcation1, sterilityRate1),
-      2 -> Level(thickness2, decreaseRate2, angle2, nbBifurcation2, sterilityRate2),
-      3 -> Level(thickness3, decreaseRate3, angle3, nbBifurcation3, sterilityRate3),
-      4 -> Level(thickness4, decreaseRate4, angle4, nbBifurcation4, sterilityRate4)
-    )
+    val levels = (0 to depth).map{_-> Level(thickness, decreaseRate, angle, nbBifurcation, alphaRate)}.toMap
 
     val turtle0 = Turtle(200, 200, levels(0).angle, levels(0).decreaseRate)
 
@@ -96,43 +63,34 @@ object Model {
       else levels(d + 1)
     }.thickness
 
-    def fertile(nbBif: Int, sterileRate: Double): Seq[Int] = {
-      val centrality = sterileRate > 0
-      val bifs = (1 to nbBif)
-      if (centrality) {
-        val nbSterile = math.abs(((nbBif * sterileRate) / 2).ceil.toInt)
-        bifs.drop(nbSterile).dropRight(nbSterile)
-      }
-      else {
-        val toDrop = math.abs(nbBif * sterileRate)
-        bifs.dropWhile(i=> (i > toDrop) && (i < nbBif + toDrop))
-      }
-    }
 
     def iter(curDepth: Int, currentDecrease: Double, curTurtle: Turtle): Unit = {
-      if (curDepth < 5) {
+      if (curDepth < depth) {
         val curLevel = levels(curDepth)
         val currentRatio = curLevel.decreaseRate * currentDecrease
         val currentLength = length * currentRatio
+        println("Cur lenght " + currentLength)
+        val curBif = {
+          if (currentLength < length * alphaRate) 1
+          else curLevel.nbBifurcation
+        }
+
         for (
-          curBif <- 1 to curLevel.nbBifurcation
+          curBif <- 1 to curBif
         ) yield {
           val angle = (curBif - ((curLevel.nbBifurcation) / 2) + shift(curLevel.nbBifurcation)) * curLevel.angle
           val newT = curTurtle.rotate(angle).move(currentLength, currentLength)
           val oldVertex = Vertex(curTurtle.position._1, curTurtle.position._2, curLevel.thickness)
           val newVertex = Vertex(newT.position._1, newT.position._2, nextThickness(curDepth))
-          val curFertility = fertile(curLevel.nbBifurcation, curLevel.sterilityRate)
           lines = lines :+ Line(oldVertex, newVertex)
           vertices = vertices :+ newVertex
-          if (curFertility.contains(curBif)) {
             iter(curDepth + 1, currentRatio, newT)
-          }
         }
       }
     }
 
     iter(0, 1, turtle0)
-    val shape = CharacteristicShape.fromLines(lines, alphaShape, Some(6)/*Some(Array(thickness0, thickness1, thickness2, thickness3, thickness4).max)*/)
+    val shape = CharacteristicShape.fromLines(lines, alphaShape, Some(6))
     if (render) Rendering(lines, Seq(shape.getExteriorRing.getCoordinates.map{c=> Vertex(c.x, c.y)}), File("model.svg"))
     (shape.getArea, shape.getLength)
   }
