@@ -25,7 +25,7 @@ object CharacteristicShape {
       //Construct the Delaunay triangulation ∆ of P
       val triangulationBuilder = new DelaunayTriangulationBuilder
       tolerance.foreach(triangulationBuilder.setTolerance)
-      triangulationBuilder.setSites(factory.createMultiPoint(inputVertices.map (v => new Coordinate(v._1, v._2)).toArray))
+      triangulationBuilder.setSites(factory.createMultiPointFromCoords(inputVertices.map (v => new Coordinate(v._1, v._2)).toArray))
       val subdivision = triangulationBuilder.getSubdivision
       //Construct the list B of boundary edges, containing the set { e ∈ E(∆) | e-∂(e) = true}
       val subdivisionQuadEdges = subdivision.getEdges.asScala.map(_.asInstanceOf[QuadEdge]).toSeq

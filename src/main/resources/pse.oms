@@ -1,6 +1,6 @@
-import leaves._
+import _file_.Leaves._
 
-def modelOutputs = Seq(area, perimeter)
+def modelOutputs = Seq(area, perimeter, length)
 
 val pse =
   PSE(
@@ -9,7 +9,7 @@ val pse =
         thickness0 in (1.0, 10.0),
         decreaseRate0 in (0.5, 1.5),
         angle0 in (0.0, 180.0),
-        nbBifurcation0 in (0.0, 6.0),
+        nbBifurcation0 in (1.0, 6.0),
         sterilityRate0 in (0.0, 1.0),
         thickness1 in (1.0, 10.0),
         decreaseRate1 in (0.5, 1.5),
@@ -33,10 +33,12 @@ val pse =
         sterilityRate4 in (0.0, 1.0)
         ),
     objectives =  Seq(
-      area in (0.0 to 40000.0 by 4000.0),
-      perimeter in (0.0 to 100000.0 by 10000.0)
+      area in (0.0 to 20000.0 by 1000.0),
+      length in (0.0 to 20000.0 by 1000.0)
       )
  )
+
+//val env = LocalEnvironment(4)
 
 val evolution =
   SteadyStateEvolution(
@@ -46,11 +48,11 @@ val evolution =
     termination = 100000
   )
 
-//val env = EGIEnvironment("vo.complex-systems.eu")
+val env = EGIEnvironment("vo.complex-systems.eu")
 
 // Define a hook to save the Pareto frontier
-val savePopulationHook = SavePopulationHook(evolution, workDirectory / "pse")
+val savePopulationHook = SavePopulationHook(evolution, workDirectory / "pse_egi")
 
 
 // Plug everything together to create the workflow
-(evolution hook savePopulationHook)
+(evolution on env hook savePopulationHook)

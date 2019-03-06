@@ -8,10 +8,11 @@ version := "1.0"
 
 scalaVersion in ThisBuild := "2.12.6"
 
-val jtsVersion = "1.15.0"
+val jtsVersion = "1.16.1"
 val scalatagsVersion = "0.6.5"
 val betterFileVersion = "3.4.0"
 val json4sVersion = "3.5.4"
+val batikVersion = "1.10"
 
 resolvers in ThisBuild ++= Seq(
   "osgeo" at "http://download.osgeo.org/webdav/geotools/",
@@ -40,6 +41,9 @@ val leaves = project in (file(".")) settings(
     "org.locationtech.jts" % "jts-core" % jtsVersion,
     "com.lihaoyi" %% "scalatags" % scalatagsVersion,
     "com.github.pathikrit" %% "better-files" % betterFileVersion,
-    "org.json4s" %% "json4s-native" % json4sVersion
+    "org.json4s" %% "json4s-native" % json4sVersion,
+    "org.apache.xmlgraphics" % "batik-transcoder" % batikVersion,
+    "org.apache.xmlgraphics" % "batik-codec" % batikVersion,
+    "org.apache.xmlgraphics" % "xmlgraphics-commons" % "2.3"
   )
 )

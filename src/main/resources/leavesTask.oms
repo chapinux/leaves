@@ -32,13 +32,14 @@ val sterilityRate4 = Val[Double]
 
 val area = Val[Double]
 val perimeter = Val[Double]
+val length = Val[Double]
 
-def modelOutputs = Seq(area, perimeter)
+def modelOutputs = Seq(area, perimeter, length)
 
 val model =
   ScalaTask("""
     |import leaves._
-    |val (area, perimeter) =
+    |val (area, perimeter, length) =
     |   leaves.Model(alphaShape,
     |     thickness0,decreaseRate0,angle0,nbBifurcation0.round.toInt,sterilityRate0,
     |     thickness1,decreaseRate1,angle1,nbBifurcation1.round.toInt,sterilityRate1,

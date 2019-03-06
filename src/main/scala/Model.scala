@@ -73,7 +73,7 @@ object Model {
              sterilityRate4: Double,
 
              file: Option[File] = None
-           ): (Double, Double) = {
+           ): (Double, Double, Double) = {
 
     val levels = Map(
       0 -> Level(thickness0, decreaseRate0, angle0, nbBifurcation0, sterilityRate0),
@@ -150,16 +150,16 @@ object Model {
     val unionT = Try{collection.union}
     val union = unionT match {
       case Success(u) => u
-      case Failure(f) => {
+      case Failure(_) =>
         val gpr = new GeometryPrecisionReducer(new PrecisionModel(1000))
         factory.createGeometryCollection(array.map(gpr.reduce)).union
-      }
     }
     //println(union)
     val shape = union.asInstanceOf[Polygon]
+    val linesLength = lines.map(_.length).sum
     //val shape = CharacteristicShape.fromLines(lines, alphaShape, Some(1.0)/*Some(Array(thickness0, thickness1, thickness2, thickness3, thickness4).max)*/)
-    file.map{Rendering(lines, Seq(shape.getExteriorRing.getCoordinates.map{c=> Vertex(c.x, c.y)}), _)}
+    file.map{Rendering(lines, Seq(shape.getExteriorRing.getCoordinates.map{c=> Vertex(c.x, c.y)}), _, false)}
     //println(shape)
-    (shape.getArea, shape.getLength)
+    (shape.getArea, shape.getLength, linesLength)
   }
 }

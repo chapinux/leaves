@@ -6,6 +6,7 @@ import org.locationtech.jts.precision.GeometryPrecisionReducer
 import scalatags.Text.{svgAttrs, svgTags}
 import scalatags.Text.all._
 
+import scala.language.implicitConversions
 import scala.util.{Failure, Success, Try}
 
 /*
@@ -52,11 +53,14 @@ object Rendering {
 
   case class Vertex(vx: Double, vy: Double, thickness: Double = 1.0)
 
-  case class Line(fromVertex: Vertex, toVertex: Vertex)
+  case class Line(fromVertex: Vertex, toVertex: Vertex) {
+    def length: Double = new Coordinate(fromVertex.vx, fromVertex.vy).distance(new Coordinate(toVertex.vx, toVertex.vy))
+  }
 
   def apply(lines: Seq[Line],
             polygons: Seq[Seq[Vertex]],
-            outSVG: better.files.File) = {
+            outSVG: better.files.File,
+            drawLines: Boolean = true) = {
 
     //JTS
     implicit def vertexToCoordinate(v: Vertex): Coordinate = new Coordinate(v.vx, v.vy)
@@ -86,24 +90,24 @@ object Rendering {
     val unionT = Try{collection.union}
     val union = unionT match {
       case Success(u) => u
-      case Failure(f) => {
+      case Failure(_) =>
         val gpr = new GeometryPrecisionReducer(new PrecisionModel(1000))
         fact.createGeometryCollection(array.map(gpr.reduce)).union
-      }
     }
 
     //println(union.getArea)
     //println(union.getLength)
 
-    val minX = union.getEnvelopeInternal.getMinX
-    val minY = union.getEnvelopeInternal.getMinY
+    val envelope = union.getEnvelopeInternal
+    val minX = envelope.getMinX
+    val minY = envelope.getMinY
     //SVG
     val painter = leaves.svg.startPath(0, 0)
     val painterPath = lines.foldLeft(painter)((painter, line) => painter.m(line.fromVertex.vx-minX, line.fromVertex.vy-minY).l(line.toVertex.vx-minX, line.toVertex.vy-minY))
 
     val svgTag = svgTags.svg(
-      svgAttrs.width := "100%",
-      svgAttrs.height := "100%",
+      svgAttrs.width := envelope.getWidth.toString,//"100%",
+      svgAttrs.height := envelope.getHeight.toString,//"100%",
       svgAttrs.xmlns := "http://www.w3.org/2000/svg",
       for {
         p <- polygons
@@ -115,10 +119,11 @@ object Rendering {
           svgAttrs.points := translated.foldLeft("") { (acc, v) => acc ++ s"${v._1},${v._2} " }
         )
       },
-      svgTags.path(
+      if (drawLines) svgTags.path(
         svgAttrs.stroke := "black",
         svgAttrs.d := painterPath.svgString
       )
+      else svgTags.path()
     )
 
     outSVG.overwrite(svgTag.render)
