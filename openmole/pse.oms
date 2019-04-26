@@ -1,0 +1,29 @@
+import _file_.Leaves._
+
+val evolution =
+    PSEEvolution(
+      evaluation = model,
+      parallelism = 10,
+      termination = 100,
+      genome =
+        Seq(
+        thickness in (1.0, 10.0),
+        decreaseRate in (0.1, 2.0),
+        angle in (0.0, 180.0),
+        nbBifurcation in (1.0, 5.0),
+        angleRate in (0.0, 5.0),
+        depth in (1.0, 5.0)),
+      objectives =
+        Seq(
+            area in (0.0 to 10000.0 by 250.0),
+            length in (0.0 to 10000.0 by 250.0)),
+        distribution = Island(5 minutes)
+    )
+    
+val env = EGIEnvironment("vo.complex-systems.eu")
+
+// Define a hook to save the Pareto frontier
+val savePopulationHook = SavePopulationHook(evolution, workDirectory / "pse")
+
+// Plug everything together to create the workflow
+(evolution on env hook savePopulationHook)

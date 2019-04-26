@@ -1,0 +1,42 @@
+val alphaShape = Val[Double]
+val thickness = Val[Double]
+val decreaseRate = Val[Double]
+val angle = Val[Double]
+val nbBifurcation = Val[Double]
+val angleRate = Val[Double]
+val depth = Val[Double]
+
+val area = Val[Double]
+val perimeter = Val[Double]
+val length = Val[Double]
+
+def modelOutputs = Seq(area, length, perimeter)
+
+val model =
+  ScalaTask("""
+    |import leaves._
+    |val (area, perimeter, length) =
+    |   leaves.Model(alphaShape,
+    |     thickness,decreaseRate,angle,nbBifurcation.toInt,angleRate,depth.toInt)
+    |""".stripMargin) set (
+    plugins += pluginsOf(leaves.Model),
+    inputs += (
+        alphaShape,
+        thickness,
+        decreaseRate,
+        angle,
+        nbBifurcation,
+        angleRate,
+        depth),
+    outputs += (area, length, perimeter),
+    alphaShape := 10.0,
+    thickness := 1.0,
+    decreaseRate := 1.0,
+    angle := 45.0,
+    nbBifurcation := 1.0,
+    angleRate := 1.0,
+    depth := 7.0
+  )
+
+// Plug everything together to create the workflow
+(model hook ToStringHook())

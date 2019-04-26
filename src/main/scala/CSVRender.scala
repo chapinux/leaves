@@ -9,55 +9,33 @@ import org.json4s.JsonAST.{JArray, JDouble, JObject, JString}
 import org.json4s.native.JsonMethods
 
 object CSVRender extends App {
-  val outputDirName = "data_490"
+  val generation = 100
+  val outputDirName = s"data_$generation"
   val outputDir = File(outputDirName)
   outputDir.createDirectories()
   var index = 0
-  val bufferedSource = io.Source.fromFile("population490.csv")
-  val bufferArray = List.fill(28)(scala.collection.mutable.ArrayBuffer[Double]())
+  val bufferedSource = io.Source.fromFile(s"population$generation.csv")
+  val bufferArray = List.fill(8)(scala.collection.mutable.ArrayBuffer[Double]())
   val svgBuffer = scala.collection.mutable.ArrayBuffer[String]()
   val pngBuffer = scala.collection.mutable.ArrayBuffer[String]()
   val lines = bufferedSource.getLines
   val header = lines.next()
-  for (line <- lines) {
+  for ((line, index) <- lines.zipWithIndex) {
+    println(s"Line $index")
     val cols = line.split(",").map(_.trim)
-    bufferArray.zipWithIndex.foreach{
-      case (b:scala.collection.mutable.ArrayBuffer[Double],i:Int)=> b.append(cols(i+1).toDouble)
+    bufferArray.zipWithIndex.foreach {
+      case (b: scala.collection.mutable.ArrayBuffer[Double], i: Int) => b.append(cols(i + 1).toDouble)
     }
     val svgFileName = s"leaf_$index.svg"
     val svgFile = outputDir / svgFileName
     val model = leaves.Model(
       cols(1).toDouble,
-
       cols(2).toDouble,
       cols(3).toDouble,
-      cols(4).toDouble,
-      cols(5).toDouble.round.toInt,
-      cols(6).toDouble,
-
-      cols(7).toDouble,
-      cols(8).toDouble,
-      cols(9).toDouble,
-      cols(10).toDouble.round.toInt,
-      cols(11).toDouble,
-
-      cols(12).toDouble,
-      cols(13).toDouble,
-      cols(14).toDouble,
-      cols(15).toDouble.round.toInt,
-      cols(16).toDouble,
-
-      cols(17).toDouble,
-      cols(18).toDouble,
-      cols(19).toDouble,
-      cols(20).toDouble.round.toInt,
-      cols(21).toDouble,
-
-      cols(22).toDouble,
-      cols(23).toDouble,
-      cols(24).toDouble,
-      cols(25).toDouble.round.toInt,
-      cols(26).toDouble,
+//      cols(4).toDouble,
+      cols(4).toDouble.toInt,
+      cols(5).toDouble,
+      cols(6).toDouble.toInt,
 
       Some(svgFile)
     )
@@ -82,46 +60,25 @@ object CSVRender extends App {
     // Flush and close the stream.
     ostream.flush
     pngBuffer.append(outputDirName + "/" + pngFileName)
-    println(s"$index - area = ${bufferArray(26).last}, length = ${bufferArray(27).last} - ${model._1} - ${model._2} - ${model._3}")
-    index += 1
+//    println(s"$index - area = ${bufferArray(7).last}, length = ${bufferArray(8).last} - ${model._1} - ${model._2} - ${model._3}")
   }
   bufferedSource.close
   // FileWriter
   val file = File("data.json")
   val bw = new BufferedWriter(new FileWriter(file.toJava))
   val names = List(
-  "alphaShape",
-  "thickness0",
-  "decreaseRate0",
-  "angle0",
-  "nbBifurcation0",
-  "sterilityRate0",
-  "thickness1",
-  "decreaseRate1",
-  "angle1",
-  "nbBifurcation1",
-  "sterilityRate1",
-  "thickness2",
-  "decreaseRate2",
-  "angle2",
-  "nbBifurcation2",
-  "sterilityRate2",
-  "thickness3",
-  "decreaseRate3",
-  "angle3",
-  "nbBifurcation3",
-  "sterilityRate3",
-  "thickness4",
-  "decreaseRate4",
-  "angle4",
-  "nbBifurcation4",
-  "sterilityRate4",
-  "area",
-  "perimeter",
-  "length"
+    "alphaShape",
+    "thickness",
+    "decreaseRate",
+    "angle",
+    "nbBifurcation",
+    "alphaRate",
+    "depth",
+    "area",
+    "perimeter"
   )
-  val list = bufferArray.zipWithIndex.map{
-    case (b:scala.collection.mutable.ArrayBuffer[Double],i:Int)=> names(i) -> JArray(b.toList.map(JDouble(_)))
+  val list = bufferArray.zipWithIndex.map {
+    case (b: scala.collection.mutable.ArrayBuffer[Double], i: Int) => names(i) -> JArray(b.toList.map(JDouble(_)))
   }
 
   val svgData = ("2D_svg" -> JArray(svgBuffer.toList.map(JString(_))))
