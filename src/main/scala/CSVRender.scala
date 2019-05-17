@@ -67,15 +67,14 @@ object CSVRender extends App {
   val file = File("data.json")
   val bw = new BufferedWriter(new FileWriter(file.toJava))
   val names = List(
-    "alphaShape",
     "thickness",
     "decreaseRate",
     "angle",
     "nbBifurcation",
-    "alphaRate",
+    "angleRate",
     "depth",
     "area",
-    "perimeter"
+    "length"
   )
   val list = bufferArray.zipWithIndex.map {
     case (b: scala.collection.mutable.ArrayBuffer[Double], i: Int) => names(i) -> JArray(b.toList.map(JDouble(_)))
