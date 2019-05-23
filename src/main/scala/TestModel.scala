@@ -23,7 +23,7 @@ object TestModel extends App {
 //301: Exception in thread "main" org.locationtech.jts.geom.TopologyException: no outgoing dirEdge found [ (94.85901923076926, 289.1070000000004, NaN) ]
   //100,2.1273655180440656,0.619290143189155,8.96510645366539,4.774156656068007,0.013310358085883902,4.525613068272611,1190.393014145804,6146.8624605810255
   override def main(args: Array[String]) = {
-    val (area, perimeter, length) = Model(
+    val (area, perimeter, length, relative_compacity, convexity) = Model(
       thickness = 2.1273655180440656,
       decreaseRate = 0.619290143189155,
       angle = 8.96510645366539,
@@ -32,6 +32,6 @@ object TestModel extends App {
       depth = 4.525613068272611.toInt,
       Some(File("model.svg"))
     )
-    println(s"area = $area, length = $length")
+    println(s"area = $area, perimeter = $length, relative_compacity = $relative_compacity, convexity = $convexity")
   }
 }

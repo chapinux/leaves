@@ -89,7 +89,7 @@ object Rendering {
     val collection = fact.createGeometryCollection(array)
     val unionT = Try{collection.union}
     val union = unionT match {
-      case Success(u) => u
+      case Success(uu) => uu
       case Failure(_) =>
         val gpr = new GeometryPrecisionReducer(new PrecisionModel(1000))
         fact.createGeometryCollection(array.map(gpr.reduce)).union
@@ -115,12 +115,12 @@ object Rendering {
         val translated = p.seq.map(v=>(v.vx-minX, v.vy-minY))
         svgTags.polygon(
           svgAttrs.stroke := "black",
-          svgAttrs.fill := "yellow",
+          svgAttrs.fill := "#4a6700",
           svgAttrs.points := translated.foldLeft("") { (acc, v) => acc ++ s"${v._1},${v._2} " }
         )
       },
       if (drawLines) svgTags.path(
-        svgAttrs.stroke := "black",
+        svgAttrs.stroke := "#5a7c08",
         svgAttrs.d := painterPath.svgString
       )
       else svgTags.path()

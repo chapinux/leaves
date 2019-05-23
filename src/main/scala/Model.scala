@@ -32,7 +32,7 @@ object Model {
                     decreaseRate: Double,
                     angle: Double,
                     nbBifurcation: Int,
-                    alphaRate: Double
+                    angleRate: Double
                   )
 
 
@@ -44,7 +44,7 @@ object Model {
              angleRate: Double,
              depth: Int,
              file: Option[File] = None
-           ): (Double, Double, Double) = {
+           ): (Double, Double, Double, Double, Double) = {
 
     val levels = (0 to depth).map{_-> Level(thickness, decreaseRate, angle, nbBifurcation, angleRate)}.toMap
 
@@ -69,7 +69,7 @@ object Model {
       if (curDepth < depth) {
         val curLevel = levels(curDepth)
         val currentRatioL = curLevel.decreaseRate * currentDecreaseL
-        val currentRatioA = curLevel.alphaRate * currentDecreaseA
+        val currentRatioA = curLevel.angleRate * currentDecreaseA
         val currentLength = length * currentRatioL
         val curBif = curLevel.nbBifurcation
 
@@ -108,8 +108,9 @@ object Model {
     val shape = union.asInstanceOf[Polygon]
     val linesLength = lines.map(_.length).sum
 
-     file.map{Rendering(lines, Seq(shape.getExteriorRing.getCoordinates.map{c=> Vertex(c.x, c.y)}), _, false)}
-
-    (shape.getArea, shape.getLength, linesLength)
+    val relative_compacity = 2*math.Pi*math.sqrt(shape.getArea / math.Pi) / shape.getLength
+    val convexity = shape.getArea / shape.convexHull().getArea
+    file.map{Rendering(lines, Seq(shape.getExteriorRing.getCoordinates.map{c=> Vertex(c.x, c.y)}), _)}
+    (shape.getArea, shape.getLength, linesLength, relative_compacity, convexity)
   }
 }
