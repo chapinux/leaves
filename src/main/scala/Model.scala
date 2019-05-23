@@ -35,10 +35,8 @@ object Model {
                     alphaRate: Double
                   )
 
-// alphaRate: Rate on the initial length below which the number of bifurcations is 1.
 
   def apply(
-//             alphaShape: Double,
              thickness: Double,
              decreaseRate: Double,
              angle: Double,
@@ -78,9 +76,8 @@ object Model {
         for (
           curBif <- 1 to curBif
         ) yield {
-          //println("curBif = " + curBif)
           val angle = ((curBif - (curLevel.nbBifurcation / 2) + shift(curLevel.nbBifurcation)) * curLevel.angle * currentRatioA)  % 3.14
-//          println("Angle " + angle)
+
           val newT = curTurtle.rotate(angle).move(currentLength, currentLength)
           val oldVertex = Vertex(curTurtle.position._1, curTurtle.position._2, curLevel.thickness)
           val newVertex = Vertex(newT.position._1, newT.position._2, nextThickness(curDepth))
@@ -107,13 +104,12 @@ object Model {
         val gpr = new GeometryPrecisionReducer(new PrecisionModel(1000))
         factory.createGeometryCollection(array.map(gpr.reduce)).union
     }
-    //println(union)
-//    println("FILLLLLLLLLLLLLLLE " + file.get.toJava.getAbsolutePath)
+
     val shape = union.asInstanceOf[Polygon]
     val linesLength = lines.map(_.length).sum
-    //val shape = CharacteristicShape.fromLines(lines, alphaShape, Some(1.0)/*Some(Array(thickness0, thickness1, thickness2, thickness3, thickness4).max)*/)
-    file.map{Rendering(lines, Seq(shape.getExteriorRing.getCoordinates.map{c=> Vertex(c.x, c.y)}), _, false)}
-    //println(shape)
+
+     file.map{Rendering(lines, Seq(shape.getExteriorRing.getCoordinates.map{c=> Vertex(c.x, c.y)}), _, false)}
+
     (shape.getArea, shape.getLength, linesLength)
   }
 }
