@@ -46,7 +46,7 @@ object Model {
              angleRate: Double,
              depth: Int,
              file: Option[File] = None
-           ): (Double, Double, Double) = {
+           ): (Double, Double, Double, Double, Double) = {
 
     val levels = (0 to depth).map{_-> Level(thickness, decreaseRate, angle, nbBifurcation, angleRate)}.toMap
 
@@ -111,9 +111,11 @@ object Model {
 //    println("FILLLLLLLLLLLLLLLE " + file.get.toJava.getAbsolutePath)
     val shape = union.asInstanceOf[Polygon]
     val linesLength = lines.map(_.length).sum
+    val relative_compacity = 2*math.Pi*math.sqrt(shape.getArea / math.Pi) / shape.getLength
+    val convexity = shape.getArea / shape.convexHull().getArea
     //val shape = CharacteristicShape.fromLines(lines, alphaShape, Some(1.0)/*Some(Array(thickness0, thickness1, thickness2, thickness3, thickness4).max)*/)
-    file.map{Rendering(lines, Seq(shape.getExteriorRing.getCoordinates.map{c=> Vertex(c.x, c.y)}), _, false)}
+    file.map{Rendering(lines, Seq(shape.getExteriorRing.getCoordinates.map{c=> Vertex(c.x, c.y)}), _)}
     //println(shape)
-    (shape.getArea, shape.getLength, linesLength)
+    (shape.getArea, shape.getLength, linesLength, relative_compacity, convexity)
   }
 }

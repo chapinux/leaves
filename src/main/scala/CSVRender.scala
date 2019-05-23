@@ -10,7 +10,7 @@ import org.json4s.native.JsonMethods
 
 object CSVRender extends App {
   val generation = 100
-  val outputDirName = s"data_$generation"
+  val outputDirName = s"data__$generation"
   val outputDir = File(outputDirName)
   outputDir.createDirectories()
   var index = 0
@@ -20,7 +20,12 @@ object CSVRender extends App {
   val pngBuffer = scala.collection.mutable.ArrayBuffer[String]()
   val lines = bufferedSource.getLines
   val header = lines.next()
+  val start = System.currentTimeMillis()
   for ((line, index) <- lines.zipWithIndex) {
+    if (index % 100 == 0) {
+      val end = System.currentTimeMillis()
+      println(s"$index ${end - start} ms")
+    }
     println(s"Line $index")
     val cols = line.split(",").map(_.trim)
     bufferArray.zipWithIndex.foreach {
@@ -45,7 +50,12 @@ object CSVRender extends App {
     val doc = factory.createSVGDocument(svgFile.uri.toString)
     val strDocWidth = doc.getRootElement.getAttribute("width").toFloat
     val strDocHeight = doc.getRootElement.getAttribute("height").toFloat
+    val ratio = strDocHeight / strDocWidth
 
+    val newWidth = 450f
+    val newHeigth = math.max(newWidth * ratio, 1f)
+
+    if (newHeigth <= 1f) println(s"strDocWidth=$strDocWidth strDocHeight=$strDocHeight ratio=$ratio newHeight=$newHeigth")
     val pngFileName = s"leaf_$index.png"
     val pngFile = outputDir / pngFileName
     val t = new PNGTranscoder()
@@ -53,8 +63,8 @@ object CSVRender extends App {
     // Create the transcoder output.// Create the transcoder output.
     val ostream = new FileOutputStream(pngFile.toString())
     val output = new TranscoderOutput(ostream)
-    t.addTranscodingHint(SVGAbstractTranscoder.KEY_WIDTH, strDocWidth)
-    t.addTranscodingHint(SVGAbstractTranscoder.KEY_HEIGHT, strDocHeight)
+    t.addTranscodingHint(SVGAbstractTranscoder.KEY_WIDTH, newWidth)
+    t.addTranscodingHint(SVGAbstractTranscoder.KEY_HEIGHT, newHeigth)
     // Save the image.// Save the image.
     t.transcode(input, output)
     // Flush and close the stream.
@@ -80,10 +90,12 @@ object CSVRender extends App {
     case (b: scala.collection.mutable.ArrayBuffer[Double], i: Int) => names(i) -> JArray(b.toList.map(JDouble(_)))
   }
 
-  val svgData = ("2D_svg" -> JArray(svgBuffer.toList.map(JString(_))))
+//  val svgData = ("2D_svg" -> JArray(svgBuffer.toList.map(JString(_))))
   val pngData = ("2D_png" -> JArray(pngBuffer.toList.map(JString(_))))
-  val finalList = list++List(svgData,pngData)
+  val finalList = list++List(/*svgData,*/pngData)
   val json = JObject(finalList)
   bw.write(JsonMethods.pretty(JsonMethods.render(json)))
   bw.close()
+  val end = System.currentTimeMillis()
+  println((end - start) + " ms")
 }
