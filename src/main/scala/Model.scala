@@ -38,7 +38,6 @@ object Model {
 // alphaRate: Rate on the initial length below which the number of bifurcations is 1.
 
   def apply(
-//             alphaShape: Double,
              thickness: Double,
              decreaseRate: Double,
              angle: Double,
