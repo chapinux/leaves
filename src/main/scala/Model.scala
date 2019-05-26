@@ -32,10 +32,9 @@ object Model {
                     decreaseRate: Double,
                     angle: Double,
                     nbBifurcation: Int,
-                    alphaRate: Double
+                    angleRate: Double
                   )
 
-// alphaRate: Rate on the initial length below which the number of bifurcations is 1.
 
   def apply(
              thickness: Double,
@@ -70,16 +69,15 @@ object Model {
       if (curDepth < depth) {
         val curLevel = levels(curDepth)
         val currentRatioL = curLevel.decreaseRate * currentDecreaseL
-        val currentRatioA = curLevel.alphaRate * currentDecreaseA
+        val currentRatioA = curLevel.angleRate * currentDecreaseA
         val currentLength = length * currentRatioL
         val curBif = curLevel.nbBifurcation
 
         for (
           curBif <- 1 to curBif
         ) yield {
-          //println("curBif = " + curBif)
           val angle = ((curBif - (curLevel.nbBifurcation / 2) + shift(curLevel.nbBifurcation)) * curLevel.angle * currentRatioA)  % 3.14
-//          println("Angle " + angle)
+
           val newT = curTurtle.rotate(angle).move(currentLength, currentLength)
           val oldVertex = Vertex(curTurtle.position._1, curTurtle.position._2, curLevel.thickness)
           val newVertex = Vertex(newT.position._1, newT.position._2, nextThickness(curDepth))
@@ -106,15 +104,13 @@ object Model {
         val gpr = new GeometryPrecisionReducer(new PrecisionModel(1000))
         factory.createGeometryCollection(array.map(gpr.reduce)).union
     }
-    //println(union)
-//    println("FILLLLLLLLLLLLLLLE " + file.get.toJava.getAbsolutePath)
+
     val shape = union.asInstanceOf[Polygon]
     val linesLength = lines.map(_.length).sum
+
     val relative_compacity = 2*math.Pi*math.sqrt(shape.getArea / math.Pi) / shape.getLength
     val convexity = shape.getArea / shape.convexHull().getArea
-    //val shape = CharacteristicShape.fromLines(lines, alphaShape, Some(1.0)/*Some(Array(thickness0, thickness1, thickness2, thickness3, thickness4).max)*/)
     file.map{Rendering(lines, Seq(shape.getExteriorRing.getCoordinates.map{c=> Vertex(c.x, c.y)}), _)}
-    //println(shape)
     (shape.getArea, shape.getLength, linesLength, relative_compacity, convexity)
   }
 }
