@@ -9,13 +9,13 @@ import org.json4s.JsonAST.{JArray, JDouble, JObject, JString}
 import org.json4s.native.JsonMethods
 
 object CSVRender extends App {
-  val generation = 100
-  val outputDirName = s"data__$generation"
+  val generation = 2762
+  val outputDirName = s"data_$generation"
   val outputDir = File(outputDirName)
   outputDir.createDirectories()
   var index = 0
   val bufferedSource = io.Source.fromFile(s"population$generation.csv")
-  val bufferArray = List.fill(8)(scala.collection.mutable.ArrayBuffer[Double]())
+  val bufferArray = List.fill(9)(scala.collection.mutable.ArrayBuffer[Double]())
   val svgBuffer = scala.collection.mutable.ArrayBuffer[String]()
   val pngBuffer = scala.collection.mutable.ArrayBuffer[String]()
   val lines = bufferedSource.getLines
@@ -37,7 +37,6 @@ object CSVRender extends App {
       cols(1).toDouble,
       cols(2).toDouble,
       cols(3).toDouble,
-//      cols(4).toDouble,
       cols(4).toDouble.toInt,
       cols(5).toDouble,
       cols(6).toDouble.toInt,
@@ -84,12 +83,12 @@ object CSVRender extends App {
     "angleRate",
     "depth",
     "area",
-    "length"
+    "compacity",
+    "convexity"
   )
   val list = bufferArray.zipWithIndex.map {
     case (b: scala.collection.mutable.ArrayBuffer[Double], i: Int) => names(i) -> JArray(b.toList.map(JDouble(_)))
   }
-
 //  val svgData = ("2D_svg" -> JArray(svgBuffer.toList.map(JString(_))))
   val pngData = ("2D_png" -> JArray(pngBuffer.toList.map(JString(_))))
   val finalList = list++List(/*svgData,*/pngData)

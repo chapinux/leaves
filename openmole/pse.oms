@@ -3,8 +3,8 @@ import _file_.Leaves._
 val evolution =
     PSEEvolution(
       evaluation = model,
-      parallelism = 10,
-      termination = 100,
+      parallelism = 200,
+      termination = 10000,
       genome =
         Seq(
         thickness in (1.0, 10.0),
@@ -15,12 +15,14 @@ val evolution =
         depth in (1.0, 5.0)),
       objectives =
         Seq(
-            area in (0.0 to 10000.0 by 250.0),
-            length in (0.0 to 10000.0 by 250.0)),
+            area in (0.0 to 10000.0 by 1000.0),
+            compacity in (0.0 to 1.0 by 0.1),
+            convexity in (0.0 to 1.0 by 0.1)),
         distribution = Island(5 minutes)
     )
     
 val env = EGIEnvironment("vo.complex-systems.eu")
+//val env = LocalEnvironment(8)
 
 // Define a hook to save the Pareto frontier
 val savePopulationHook = SavePopulationHook(evolution, workDirectory / "pse")

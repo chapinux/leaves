@@ -9,14 +9,16 @@ val depth = Val[Double]
 val area = Val[Double]
 val perimeter = Val[Double]
 val length = Val[Double]
+val compacity = Val[Double]
+val convexity = Val[Double]
 
-def modelOutputs = Seq(area, length, perimeter)
+def modelOutputs = Seq(area, perimeter, length, compacity, convexity)
 
 val model =
   ScalaTask("""
     |import leaves._
-    |val (area, perimeter, length) =
-    |   leaves.Model(alphaShape,
+    |val (area, perimeter, length, compacity, convexity) =
+    |   leaves.Model(
     |     thickness,decreaseRate,angle,nbBifurcation.toInt,angleRate,depth.toInt)
     |""".stripMargin) set (
     plugins += pluginsOf(leaves.Model),
@@ -28,7 +30,7 @@ val model =
         nbBifurcation,
         angleRate,
         depth),
-    outputs += (area, length, perimeter),
+    outputs += (area, perimeter, length, compacity, convexity),
     alphaShape := 10.0,
     thickness := 1.0,
     decreaseRate := 1.0,
@@ -38,5 +40,11 @@ val model =
     depth := 7.0
   )
 
+val env =
+  SLURMEnvironment(
+    "ubuntu",
+    "134.158.75.56"
+  )
+
 // Plug everything together to create the workflow
-(model hook ToStringHook())
+(model on env hook ToStringHook())
