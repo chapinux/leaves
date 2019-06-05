@@ -46,9 +46,7 @@ object Model {
              file: Option[File] = None
            ): (Double, Double, Double, Double, Double) = {
 
-    val levels = (0 to depth).map{_-> Level(thickness, decreaseRate, angle, nbBifurcation, angleRate)}.toMap
-
-    val turtle0 = Turtle(200, 200, levels(0).angle, levels(0).decreaseRate)
+    val turtle0 = Turtle(200, 200, angle, decreaseRate)
 
     val length = 100.0
 
@@ -60,27 +58,21 @@ object Model {
       else -0.5
     }
 
-    def nextThickness(d: Int) = {
-      if (d == 4) levels(4)
-      else levels(d + 1)
-    }.thickness
-
     def iter(curDepth: Int, currentDecreaseL: Double, currentDecreaseA: Double, curTurtle: Turtle): Unit = {
       if (curDepth < depth) {
-        val curLevel = levels(curDepth)
-        val currentRatioL = curLevel.decreaseRate * currentDecreaseL
-        val currentRatioA = curLevel.angleRate * currentDecreaseA
+        val currentRatioL = decreaseRate * currentDecreaseL
+        val currentRatioA = angleRate * currentDecreaseA
         val currentLength = length * currentRatioL
-        val curBif = curLevel.nbBifurcation
+        val curBif = nbBifurcation
 
         for (
           curBif <- 1 to curBif
         ) yield {
-          val angle = ((curBif - (curLevel.nbBifurcation / 2) + shift(curLevel.nbBifurcation)) * curLevel.angle * currentRatioA)  % 3.14
+          val curAngle = ((curBif - (nbBifurcation / 2) + shift(nbBifurcation)) * angle * currentRatioA)  % 3.14
 
-          val newT = curTurtle.rotate(angle).move(currentLength, currentLength)
-          val oldVertex = Vertex(curTurtle.position._1, curTurtle.position._2, curLevel.thickness)
-          val newVertex = Vertex(newT.position._1, newT.position._2, nextThickness(curDepth))
+          val newT = curTurtle.rotate(curAngle).move(currentLength, currentLength)
+          val oldVertex = Vertex(curTurtle.position._1, curTurtle.position._2, thickness)
+          val newVertex = Vertex(newT.position._1, newT.position._2, thickness)
           lines = lines :+ Line(oldVertex, newVertex)
           vertices = vertices :+ newVertex
             iter(curDepth + 1, currentRatioL, currentRatioA, newT)
